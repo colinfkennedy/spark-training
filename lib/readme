@@ -1,0 +1,4 @@
+Home for all the unmanaged jar files of the project.
+
+socketio.jar - used by WikiChanges server. Unfortunately Right now this dependency is not published anywhere
+Checkout https://github.com/Gottox/socket.io-java-client for more info
