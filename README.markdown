@@ -11,9 +11,9 @@ These exercises are part of the [Typesafe Apache Spark Workshop](http://typesafe
 
 ## The Spark Version
 
-This workshop uses Spark 1.3.1. It also uses Scala 2.11. Even though the Spark builds found at the [Apache site](http://spark.apache.org) are only for 2.10, in fact there are 2.11 artifacts in the Apache maven repositories.
+This workshop uses Spark 1.4.0. It also uses Scala 2.11. Even though the Spark builds found at the [Apache site](http://spark.apache.org) are only for 2.10, in fact there are 2.11 artifacts in the Apache maven repositories.
 
-> However, the 2.11 builds are considered experiment at this time. Consider using Scala 2.10 for production software.
+> However, the 2.11 builds are considered experimental at this time. Consider using Scala 2.10 for production software.
 
 The following documentation links provide more information about Spark:
 
