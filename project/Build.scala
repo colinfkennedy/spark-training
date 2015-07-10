@@ -3,7 +3,7 @@ import sbt.Keys._
 
 object BuildSettings {
 
-  val Name = "spark-workshop"
+  val Name = "spark-workshop-exercises"
   val Version = "3.0"
   val ScalaVersion = "2.11.7"
 
@@ -62,7 +62,7 @@ object SparkWorkshopBuild extends Build {
   import BuildSettings._
 
   lazy val sparkWorkshop = Project(
-    id = "Spark-Workshop",
+    id = "spark-workshop-exercises",
     base = file("."),
     settings = buildSettings ++ Seq(
       maxErrors := 5,
