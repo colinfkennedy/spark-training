@@ -42,3 +42,19 @@ carriersJSON3.take(5).foreach(println)
 Printer(Console.out, "Carriers converted to JSON: ", carriersJSON3)
 println("\nCarriers whose 'code' starts with 'U':")
 carriersJSON3.filter($"code".startsWith("U")).show
+
+// Error handling. Note how the following bad records are handled.
+val jsonsRDD = sc.parallelize(Seq(
+  """{ "id": 1, "message": "This is a good record" }""",
+  """{ "id", "message": "This is not a good record" }""",
+  """{ "id": 3, "message" }""",
+  """{ "id": 4, "message": "This is another good record" }"""))
+val jsons = sqlContext.read.json(jsonsRDD).cache
+jsons.schema
+jsons.show
+val good = jsons.filter($"_corrupt_record".isNull)
+val bad  = jsons.filter($"_corrupt_record".isNotNull)
+println(s"${good.count} good records:")
+good foreach println
+println(s"${bad.count} bad records:")
+bad foreach println
