@@ -44,6 +44,8 @@ object SparkDataFrames {
       conf.set("spark.sql.unsafe.enabled", "true")
       conf.set("spark.shuffle.manager", "tungsten-sort")
     }
+    // Change to a more reasonable default number of partitions (from 200)
+    conf.set("spark.sql.shuffle.partitions", "4")
     val sc = new SparkContext(conf)
     val sqlContext = new SQLContext(sc)
     import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.

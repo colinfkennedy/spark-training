@@ -9,6 +9,9 @@ import org.apache.spark.sql.{SQLContext, DataFrame}
 // val sqlContext = new SQLContext(sc)
 // import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
 
+// Change to a more reasonable default number of partitions (from 200)
+sqlContext.setConf("spark.sql.shuffle.partitions", "4")
+
 val flightsPath  = "data/airline-flights/alaska-airlines/2008.csv"
 val carriersPath = "data/airline-flights/carriers.csv"
 val airportsPath = "data/airline-flights/airports.csv"

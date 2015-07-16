@@ -1,13 +1,17 @@
 // Adapted from src/main/scala/com/typesafe/training/sws/ex7/SparkSQL.scala
 import com.typesafe.training.data._
 import com.typesafe.training.util.Printer
-import org.apache.spark.sql.{SQLContext, SchemaRDD}
+import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.apache.spark.rdd.RDD
+import com.typesafe.training.util.sql.SparkSQLRDDUtil
 
 val flightsPath  = "data/airline-flights/alaska-airlines/2008.csv"
 val carriersPath = "data/airline-flights/carriers.csv"
 val airportsPath = "data/airline-flights/airports.csv"
 val planesPath   = "data/airline-flights/plane-data.csv"
+
+// Change to a more reasonable default number of partitions (from 200)
+sqlContext.setConf("spark.sql.shuffle.partitions", "4")
 
 // Our settings for sbt console and spark-shell both define the following for us:
 // val sqlContext = new SQLContext(sc)
@@ -20,26 +24,22 @@ def print(message: String, df: DataFrame) = {
 }
 
 val (flights, carriers, airports, planes) =
-  SparkSQLRDDUtil.load(sc. inputPath, carriers, airports, planes) map { rdd =>
-    val df = sqlContext.createDataFrame(rdd)
-    df.printSchema
-    df.show()  // show() prints 20 records in the DataFrame.
-    df
-  }
+  SparkSQLRDDUtil.load(sc, flightsPath, carriersPath, airportsPath, planesPath)
 // Cache just the flights and airports.
 flights.cache
 airports.cache
 
-// Register the RDDs as temporary "tables". The "registerTempTable" method
-// call invokes an "implicit" conversion to SchemaRDD
-// (http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.SchemaRDD)
+// Register the DataFrames as temporary "tables".
 // that we imported through sqlContext._ above.
-def register(df: DataFrame, name: String): Unit = {
+import scala.reflect.runtime.universe.TypeTag
+def register[T <: Product : TypeTag](rdd: RDD[T], name: String): Unit = {
+  val df = sqlContext.createDataFrame(rdd)
   df.registerTempTable(name)
   df.cache()
   println(s"Schema for $name:")
   df.printSchema()
 }
+
 register(flights,  "flights")
 register(carriers, "carriers")
 register(airports, "airports")
@@ -94,10 +94,7 @@ println("\nflights_between_airports2.explain(true):")
 flights_between_airports2.explain(true)
 
 // Register this table so you can play with it later.
-register(flights_between_airports2,  "flights_between_airports2")
-// There are ~170, so print them all, but it uses ~200 partitions!
-// This inefficiency can't be fixed when using SQL, but can be fixed
-// when using the DataFrames DSL; see SparkDataFrame.scala.
+flights_between_airports2.registerTempTable("flights_between_airports2")
 print("Flights between airports #2, sorted by count", flights_between_airports2)
 
 // Write your own queries. Try joins with the other "tables".

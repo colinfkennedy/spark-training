@@ -38,6 +38,8 @@ object SparkSQL {
 
     val sc = new SparkContext(argz("master"), "Spark SQL")
     sqlContext = new SQLContext(sc)
+    // Change to a more reasonable default number of partitions (from 200)
+    sqlContext.setConf("spark.sql.shuffle.partitions", "4")
 
     try {
       // Use a pattern match to extract the four RDDs into named variables:

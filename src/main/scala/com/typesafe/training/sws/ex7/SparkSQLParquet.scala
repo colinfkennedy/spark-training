@@ -38,6 +38,8 @@ object SparkSQLParquet {
 
     val sc = new SparkContext(argz("master"), "Spark SQL Parquet")
     val sqlContext = new SQLContext(sc)
+    // Change to a more reasonable default number of partitions (from 200)
+    sqlContext.setConf("spark.sql.shuffle.partitions", "4")
     import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
 
     try {

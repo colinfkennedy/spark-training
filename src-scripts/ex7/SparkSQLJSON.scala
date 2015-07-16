@@ -2,6 +2,9 @@ import com.typesafe.training.data._
 import com.typesafe.training.util.Printer
 import org.apache.spark.sql.{SQLContext, DataFrame}
 
+// Change to a more reasonable default number of partitions (from 200)
+sqlContext.setConf("spark.sql.shuffle.partitions", "4")
+
 /** Example of loading JSON */
 
 val carriersJSONPath = "data/airline-flights/carriers.json"
@@ -37,11 +40,11 @@ val carriersCSV = for {
 } yield carrier
 val carriersDF = sqlContext.createDataFrame(carriersCSV)
 carriersDF.printSchema()
-val carriersJSON3 = carriersDF.toJSON
-carriersJSON3.take(5).foreach(println)
-Printer(Console.out, "Carriers converted to JSON: ", carriersJSON3)
+val carriersRDD = carriersDF.toJSON
+carriersRDD.take(5).foreach(println)
+Printer(Console.out, "Carriers converted to an RDD of JSON strings: ", carriersRDD)
 println("\nCarriers whose 'code' starts with 'U':")
-carriersJSON3.filter($"code".startsWith("U")).show
+carriersRDD.filter(str => str.contains("""code":"U""")) foreach println
 
 // Error handling. Note how the following bad records are handled.
 val jsonsRDD = sc.parallelize(Seq(
