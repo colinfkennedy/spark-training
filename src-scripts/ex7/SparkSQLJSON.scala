@@ -72,10 +72,10 @@ val jsons2 = sqlContext.read.json(jsonsRDD2).cache
 jsons2.schema
 jsons2.show
 
-println("\nIn the previous example, id was of type 'bigint'. Now what happens to it?")
+println("\nIn the previous example, id was of type 'bigint'. Now what happens to it? What is the type for 'number'?")
 val jsonsRDD3 = sc.parallelize(Seq(
-  """{ "id": 1,     "message": "message1", "name": "name1" }""",
-  """{ "id": "two", "message": "message1", "name": "name1" }"""))
+  """{ "id": 1,     "message": "message1", "number": 1 }""",
+  """{ "id": "two", "message": "message1", "number": 2.2 }"""))
 val jsons3 = sqlContext.read.json(jsonsRDD3).cache
 jsons3.schema
 jsons3.show
@@ -98,3 +98,12 @@ println("id, level1.level2")
 jsons4.select($"id", $"level1.level2").show
 println("id, level1.level2.c")
 jsons4.select($"id", $"level1.level2.c").show
+
+println("\nRevisiting mixed types. What's the type of 'level2'?")
+val jsonsRDD5 = sc.parallelize(Seq(
+  """{ "id": 1, "level1": { "a": "a1", "b": "b1", "level2": { "c": "c1" } } }""",
+  """{ "id": 2, "level1": { "a": "a2", "b": "b2", "level2": 2.2 } }"""))
+val jsons5 = sqlContext.read.json(jsonsRDD5).cache
+jsons5.schema
+jsons5.show
+
