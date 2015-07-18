@@ -21,6 +21,8 @@ object SparkStreamingSQL extends SparkStreamingCommon {
   protected def computeFlightDelays(flights: DStream[Flight]): Unit = {
 
     val sqlContext: SQLContext = new SQLContext(flights.context.sparkContext)
+    // Change to a more reasonable default number of partitions (from 200)
+    sqlContext.setConf("spark.sql.shuffle.partitions", "4")
 
     flights.foreachRDD { flights =>
       sqlContext.createDataFrame(flights).registerTempTable("flights")

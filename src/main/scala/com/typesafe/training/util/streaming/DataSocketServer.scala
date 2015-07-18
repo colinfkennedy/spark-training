@@ -14,6 +14,10 @@ class DataSocketServer(
   import DataSocketServer._
 
   def run: Unit = {
+      println(s"""DataSocketServer:
+        |  Port:      $port
+        |  Data file: $dataFile
+        |""".stripMargin)
     val listener = new ServerSocket(port);
     var socketOption: Option[Socket] = None
     var fileOption: Option[File] = None

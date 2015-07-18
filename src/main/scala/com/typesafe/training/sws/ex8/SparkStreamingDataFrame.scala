@@ -10,9 +10,9 @@ import java.io.PrintStream
 
 /**
  * A demonstration of Spark Streaming, reading airline data either over a
- * socket or from files.
+ * socket or from files, and using the DataFrame API to analyze it.
  */
-object SparkStreaming extends SparkStreamingCommon {
+object SparkStreamingDataFrame extends SparkStreamingCommon {
 
   def main(args: Array[String]): Unit = initMain(args)
 
