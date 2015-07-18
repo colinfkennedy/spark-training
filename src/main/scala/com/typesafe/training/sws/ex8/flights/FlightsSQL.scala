@@ -1,4 +1,4 @@
-package com.typesafe.training.sws.ex8
+package com.typesafe.training.sws.ex8.flights
 
 import com.typesafe.training.data._
 import com.typesafe.training.util.Timestamp
@@ -14,7 +14,7 @@ import java.io.PrintStream
  * In production applications, you should probably use DataFrames instead.
  * Try porting this code to use DataFrames.
  */
-object SparkStreamingSQL extends SparkStreamingCommon {
+object FlightsSQL extends FlightsCommon {
 
   def main(args: Array[String]): Unit = initMain(args)
 

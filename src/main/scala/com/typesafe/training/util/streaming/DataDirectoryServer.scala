@@ -6,7 +6,7 @@ import scala.io.Source
 import java.io.IOException
 
 /**
- * Serves data to the SparkStreaming example by periodically writing a new
+ * Serves data to the Flights example by periodically writing a new
  * file to a watched directory.
  * An alternative to invoking this code as a separate program is to invoke
  * the {@link run} method in a dedicated thread in another application.

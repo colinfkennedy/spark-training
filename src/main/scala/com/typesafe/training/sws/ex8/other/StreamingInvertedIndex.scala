@@ -1,4 +1,4 @@
-package com.typesafe.training.sws.ex8
+package com.typesafe.training.sws.ex8.other
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
@@ -23,7 +23,7 @@ object StreamingInvertedIndex {
     val master   = "local[*]"
     val interval = Seconds(5)
     val server   = "localhost"
-    val port     = 9900
+    val port     = 10000
     val input    = "output/crawl"
     val output   = "output/inverted-index-streaming"
     run(master, interval, server, port, input, output)

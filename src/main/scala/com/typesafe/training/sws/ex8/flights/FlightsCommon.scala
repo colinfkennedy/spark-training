@@ -1,4 +1,4 @@
-package com.typesafe.training.sws.ex8
+package com.typesafe.training.sws.ex8.flights
 
 import com.typesafe.training.util.{CommandLineOptions, FileUtil}
 import com.typesafe.training.util.CommandLineOptions.Opt
@@ -12,7 +12,7 @@ import org.apache.spark.streaming.dstream.{InputDStream, DStream}
 import org.apache.hadoop.mapreduce.lib.input.InvalidInputException
 import java.io.{File, PrintStream}
 
-object SparkStreamingCommon {
+object FlightsCommon {
 
   /**
    * A function to select the calculation to do, flights between airports
@@ -54,7 +54,7 @@ object SparkStreamingCommon {
  * Shared code between the different implementations of the Spark Streaming
  * example.
  */
-abstract class SparkStreamingCommon {
+abstract class FlightsCommon {
 
   val defaultInterval = 2        // 2 second
   val defaultTimeout  = 15       // 15 seconds
@@ -71,14 +71,14 @@ abstract class SparkStreamingCommon {
       this, "Use --socket or --input-path arguments",
       // For this process, use at least 2 cores!
       CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
-      SparkStreamingCommon.WatchDirectory(Some(SparkStreamingCommon.WatchDirectory.default)),
+      FlightsCommon.WatchDirectory(Some(FlightsCommon.WatchDirectory.default)),
       CommandLineOptions.outputPath(Some("output/streaming/airline-stats")),
       CommandLineOptions.socket(None),  // empty default, so we know the user specified this option.
       CommandLineOptions.timeout(Some(defaultTimeout)),
       CommandLineOptions.interval(Some(Seconds(defaultInterval))),
       CommandLineOptions.window(),
-      SparkStreamingCommon.WhichAnalysis(Some(SparkStreamingCommon.WhichAnalysis.default)),
-      CommandLineOptions.checkpointDirectory(Some(SparkStreamingCommon.defaultCheckpointDirectory)),
+      FlightsCommon.WhichAnalysis(Some(FlightsCommon.WhichAnalysis.default)),
+      CommandLineOptions.checkpointDirectory(Some(FlightsCommon.defaultCheckpointDirectory)),
       CommandLineOptions.DeleteCheckpointDirectory(Some(true)),
       CommandLineOptions.noterm,
       CommandLineOptions.quiet)

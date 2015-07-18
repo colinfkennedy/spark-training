@@ -1,4 +1,4 @@
-package com.typesafe.training.sws.ex8
+package com.typesafe.training.sws.ex8.flights
 
 import com.typesafe.training.util.{CommandLineOptions, FileUtil}
 import com.typesafe.training.util.CommandLineOptions.Opt
@@ -10,12 +10,17 @@ import java.net.URL
 import java.io.File
 
 /**
- * The "backend" program that generates data for the SparkStreaming example.
+ * The "backend" program that generates data for the Flights example.
  * It provides the source data either over a socket or by periodically writing
  * new data files to a directory.
  * Run with the --help option for details.
+ * Note: The only thing specific to the flights example is the hard-coded
+ * default value for `dataFile` below and the package name. Hence, the type name
+ * could be more generic, as it's more generally useful.
  */
-object SparkStreamingBackend {
+object FlightsBackend {
+
+  val dataFile = "data/airline-flights/alaska-airlines/2008.csv"
 
   /**
    * The source data file to write over a socket or to write repeatedly to the
@@ -37,8 +42,8 @@ object SparkStreamingBackend {
       // For this process, use at least 2 cores!
       CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.socket(None),  // empty default, so we know the user specified this option.
-      SparkStreamingCommon.WatchDirectory(Some(SparkStreamingCommon.WatchDirectory.default)),
-      sourceDataFile(Some("data/airline-flights/alaska-airlines/2008.csv")),
+      FlightsCommon.WatchDirectory(Some(FlightsCommon.WatchDirectory.default)),
+      sourceDataFile(Some(dataFile)),
       CommandLineOptions.quiet)
     val argz   = options(args.toList)
 
