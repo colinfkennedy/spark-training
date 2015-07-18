@@ -9,10 +9,10 @@ object InvertedIndex {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("output/crawl")),
       CommandLineOptions.outputPath(Some("output/inverted-index")),
-      CommandLineOptions.master(Some("local[*]")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 

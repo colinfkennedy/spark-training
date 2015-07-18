@@ -30,7 +30,11 @@ flights.cache
 airports.cache
 
 // Register the DataFrames as temporary "tables".
-// that we imported through sqlContext._ above.
+// The `[T <: Product : TypeTag]` means that the type T must be a
+// subtype of the trait `Product` (inherited by Tuples, for example; it provides
+// the `foo._2` methods, etc.). Also, T must be *convertable* to a TypeTag[T]
+// using an implicit conversion. TypeTags are part of the reflection API and are
+// used to determine certain type information at runtime.
 import scala.reflect.runtime.universe.TypeTag
 def register[T <: Product : TypeTag](rdd: RDD[T], name: String): Unit = {
   val df = sqlContext.createDataFrame(rdd)
@@ -81,14 +85,11 @@ print("Flights between airports, sorted by airports", flights_between_airports)
 println("\nflights_between_airports.explain(true):")
 flights_between_airports.explain(true)
 
-// Unfortunately, SparkSQL's SQL dialect doesn't yet support column aliasing
-// for function outputs, which we would like to use for "COUNT(*) as count",
-// then "ORDER BY count". However, we can use the synthesized name, c2.
 val flights_between_airports2 = sql("""
-  SELECT origin, dest, COUNT(*)
+  SELECT origin, dest, COUNT(*) AS cnt
   FROM flights
   GROUP BY origin, dest
-  ORDER BY c2 DESC""")
+  ORDER BY cnt DESC""")
 print("Flights between airports, sorted by counts", flights_between_airports2)
 println("\nflights_between_airports2.explain(true):")
 flights_between_airports2.explain(true)

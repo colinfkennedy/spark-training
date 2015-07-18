@@ -38,8 +38,8 @@ if (parquetDir.exists) {
   parquetDir.delete
 }
 
-// save() uses Parquet.
-verses.write.save(outputPath)
+// You can also call verses.write.save(), which uses Parquet.
+verses.write.parquet(outputPath)
 
 // Now read it back in and use it:
 println(s"Reading in the Parquet file from $outputPath:")

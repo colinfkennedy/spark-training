@@ -16,7 +16,8 @@ class NGramsSpec extends FunSpec {
       NGrams.out = new PrintStream(fileStream, true)
 
       NGrams.main(Array(
-        "--quiet", "--input-path", "data/all-shakespeare.txt",
+        "--master", "local", "--quiet",
+        "--input-path", "data/all-shakespeare.txt",
         "--count", "100", "--ngrams", "% love % %"))
 
       TestUtil.verifyAndClean(out, golden, out)

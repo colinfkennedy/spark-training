@@ -11,10 +11,10 @@ object WordCountGroupByWordCounts {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/all-shakespeare.txt")),
       CommandLineOptions.outputPath(Some("output/shakespeare-wc-sort-by-word-count-groups")),
-      CommandLineOptions.master(Some("local")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 

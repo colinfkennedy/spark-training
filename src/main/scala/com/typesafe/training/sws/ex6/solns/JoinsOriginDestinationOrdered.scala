@@ -17,11 +17,11 @@ object JoinsOriginDestinationOrdered {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/airline-flights/alaska-airlines/2008.csv")),
       ExtraCommandLineOptions.airports(Some("data/airline-flights/airports.csv")),
-      CommandLineOptions.outputPath(Some("output/airline-flights-airports-join-ordered")),
-      CommandLineOptions.master(Some("local")),
+      CommandLineOptions.outputPath(Some("output/airline-flights-airports-join-origin-dest-ordered")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 

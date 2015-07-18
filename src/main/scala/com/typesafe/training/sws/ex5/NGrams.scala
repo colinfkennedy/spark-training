@@ -38,7 +38,7 @@ object NGrams {
       })
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/all-shakespeare.txt")),
       // CommandLineOptions.outputPath(Some("output/ngrams")), // just write to the console
       CommandLineOptions.master(Some("local")),

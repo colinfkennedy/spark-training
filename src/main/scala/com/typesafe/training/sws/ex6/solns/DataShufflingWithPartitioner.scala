@@ -15,7 +15,7 @@ object DataShufflingWithPartitioner {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       ExtraCommandLineOptions.airports(Some("data/airline-flights/airports.csv")),
       CommandLineOptions.master(Some("local[2]")),
       CommandLineOptions.quiet)

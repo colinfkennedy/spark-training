@@ -15,7 +15,9 @@ class SparkSQLSpec extends FunSpec {
       val fileStream = new FileOutputStream(new File(out))
       SparkSQL.out = new PrintStream(fileStream, true)
 
-      SparkSQL.main(Array("--quiet", "--in", in))
+      SparkSQL.main(Array(
+        "--master", "local", "--quiet",
+        "--in", in))
 
       TestUtil.verifyAndClean(out, golden, out)
     }

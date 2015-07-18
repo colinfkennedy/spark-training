@@ -15,7 +15,9 @@ class CrawlSpec extends FunSpec {
 
       // Note that we use a single core (local).
       // The defaults for --input-path is fine.
-      Crawl.main(Array("--quiet", "--master", "local", "--output-path", out))
+      Crawl.main(Array(
+        "--master", "local", "--quiet",
+        "--output-path", out))
 
       TestUtil.verifyAndClean(out2, golden, out)
     }

@@ -28,7 +28,9 @@ class InvertedIndexSolnsSpec extends FunSpec {
       val name = "inverted-index-sorted"
       setup(name)
       InvertedIndexSortByWordsAndCounts.main(Array(
-        "--quiet", "--master", "local", "--input-path", "output/crawl", "--output-path", s"output/$name"))
+        "--master", "local", "--quiet",
+        "--input-path", "output/crawl",
+        "--output-path", s"output/$name"))
       verifyAndClean(name)
     }
   }
@@ -38,7 +40,9 @@ class InvertedIndexSolnsSpec extends FunSpec {
       val name = "inverted-index-sorted-stop-words-removed"
       setup(name)
       InvertedIndexSortByWordsAndCountsWithStopWordsFiltering.main(Array(
-        "--quiet", "--master", "local", "--input-path", "output/crawl", "--output-path", s"output/$name"))
+        "--master", "local", "--quiet",
+        "--input-path", "output/crawl",
+        "--output-path", s"output/$name"))
       verifyAndClean(name)
     }
   }

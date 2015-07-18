@@ -15,10 +15,12 @@ class InvertedIndexSpec extends FunSpec {
       // We have to run Crawl first to ensure the data exists!
       // Note that we use a single core (local).
       TestUtil.testAndRemove("output/crawl")  // Delete previous runs, if necessary.
-      Crawl.main(Array("--quiet", "--master", "local"))
+      Crawl.main(Array("--master", "local", "--quiet"))
 
       InvertedIndex.main(Array(
-        "--quiet", "--master", "local", "--input-path", "output/crawl", "--output-path", out))
+        "--master", "local", "--quiet",
+        "--input-path", "output/crawl",
+        "--output-path", out))
 
       TestUtil.verifyAndClean(out2, golden, out+"-") //, sortLines = true)
       TestUtil.testAndRemove("output/crawl")

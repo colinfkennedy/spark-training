@@ -22,7 +22,9 @@ class WordCountSolnsSpec extends FunSpec {
       val name = "shakespeare-wc-sort-by-word"
       setup(name)
       WordCountSortByWord.main(Array(
-        "--quiet", "--input-path", "data/all-shakespeare.txt", "--output-path", s"output/$name"))
+        "--master", "local", "--quiet",
+        "--input-path", "data/all-shakespeare.txt",
+        "--output-path", s"output/$name"))
       verifyAndClean(name)
     }
   }
@@ -32,7 +34,9 @@ class WordCountSolnsSpec extends FunSpec {
       val name = "shakespeare-wc-sort-by-count"
       setup(name)
       WordCountSortByCount.main(Array(
-        "--quiet", "--input-path", "data/all-shakespeare.txt", "--output-path", s"output/$name"))
+        "--master", "local", "--quiet",
+        "--input-path", "data/all-shakespeare.txt",
+        "--output-path", s"output/$name"))
       verifyAndClean(name)
     }
   }
@@ -42,7 +46,9 @@ class WordCountSolnsSpec extends FunSpec {
       val name = "shakespeare-wc-sort-by-count-first-letter"
       setup(name)
       WordCountSortByFirstLetter.main(Array(
-        "--quiet", "--input-path", "data/all-shakespeare.txt", "--output-path", s"output/$name"))
+        "--master", "local", "--quiet",
+        "--input-path", "data/all-shakespeare.txt",
+        "--output-path", s"output/$name"))
       verifyAndClean(name)
     }
   }
@@ -52,7 +58,9 @@ class WordCountSolnsSpec extends FunSpec {
       val name = "shakespeare-wc-sort-by-word-length"
       setup(name)
       WordCountSortByWordLength.main(Array(
-        "--quiet", "--input-path", "data/all-shakespeare.txt", "--output-path", s"output/$name"))
+        "--master", "local", "--quiet",
+        "--input-path", "data/all-shakespeare.txt",
+        "--output-path", s"output/$name"))
       verifyAndClean(name)
     }
   }
@@ -62,7 +70,9 @@ class WordCountSolnsSpec extends FunSpec {
       val name = "shakespeare-wc-sort-by-word-count-groups"
       setup(name)
       WordCountGroupByWordCounts.main(Array(
-        "--quiet", "--input-path", "data/all-shakespeare.txt", "--output-path", s"output/$name"))
+        "--master", "local", "--quiet",
+        "--input-path", "data/all-shakespeare.txt",
+        "--output-path", s"output/$name"))
       verifyAndClean(name)
     }
   }
