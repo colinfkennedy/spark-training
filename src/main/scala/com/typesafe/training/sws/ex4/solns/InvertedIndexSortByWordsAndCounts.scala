@@ -13,10 +13,10 @@ object InvertedIndexSortByWordsAndCounts {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("output/crawl")),
       CommandLineOptions.outputPath(Some("output/inverted-index-sorted")),
-      CommandLineOptions.master(Some("local[*]")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 
@@ -70,7 +70,7 @@ object InvertedIndexSortByWordsAndCounts {
             // New: sort the sequence by count, descending. Note that we also
             // sort by path. This is NOT necessary, but it removes randomness
             // when two "n" values are equal! It adds overhead, though.
-            val seq2 = iterable.toSeq.sortBy {
+            val seq2 = iterable.toVector.sortBy {
               case (path, n) => (-n, path)
             }
             (word, seq2.mkString(", "))
