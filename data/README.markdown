@@ -43,6 +43,10 @@ The following ancient, sacred texts are from [www.sacred-texts.com/bib/osrc/](ht
 
 There are many other texts from the world's religious traditions at the [www.sacred-texts.com](http://www.sacred-texts.com) site, but most of the others aren't formatted into one convenient file like these examples.
 
+## Classics
+
+[http://classics.mit.edu/]() is a great source of ancient texts. *Caesar's Gallic Wars* is including here, `classics/gallic.mb.txt`, which describes his conquest of Gaul (roughly modern France) between 58 and 50 BC.
+
 ## Email Classified as SPAM and HAM
 
 A sample of SPAM/HAM classified emails from the well-known Enron email data set was adapted from [this research project](http://www.aueb.gr/users/ion/data/enron-spam/). Each file is plain text, partially formatted (i.e., with `name:value` headers) as used in email servers and clients.
@@ -52,15 +56,7 @@ A sample of SPAM/HAM classified emails from the well-known Enron email data set 
 `enron-spam-hamham100` | A sample of 100 emails from the dataset that were classified as HAM.
 `enron-spam-hamspam100` | A sample of 100 emails from the dataset that were classified as SPAM.
 
-## Other Data Sources
+## Divvy Bike Data
 
-For other data sets to analyze, consider the following sources.
-
-### Classics
-
-[http://classics.mit.edu/]() is a great source of ancient texts.
-
-### Divvy Bike Data
-
-Divvy runs a bike-sharing service in Chicago. They recently put a snapshot of their anonymized data online for data science experements, [http://DivvyBikes.com/datachallenge]().
+Divvy runs a bike-sharing service in Chicago. They recently posted a snapshot of their anonymized data online as part of a data science challenge, [https://www.divvybikes.com/datachallenge](). This page has some interesting visualizations done by participants. The list of latitudes and longitudes for the stations as of 2013 is included here, `Divvy/stations-lat-long.csv`. The full data set, including records of trips for 2013, is available from the web site.
 
