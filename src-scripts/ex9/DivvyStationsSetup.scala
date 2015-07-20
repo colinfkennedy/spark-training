@@ -1,4 +1,4 @@
-// this file was used to construct the included Divvy Station lat-long
+// This file is used to construct the included Divvy Station lat-long
 // data in `data/Divvy/stations-lat-long.csv` from the actual data available
 // at https://www.divvybikes.com/datachallenge. You'll need to download the
 // data from there to run this script. Edit the definition of "dataRoot"
@@ -30,6 +30,7 @@ val stationsLatLong = for {
   latLong = formatDoubles(station.latitude, station.longitude)
 } yield latLong
 
+FileUtil.rmrf(stationsPath)
 val latLongOut = new java.io.PrintWriter(stationsPath)
 stationsLatLong.collect.sortBy(rec => rec).foreach(latLongOut.println)
 latLongOut.close()
