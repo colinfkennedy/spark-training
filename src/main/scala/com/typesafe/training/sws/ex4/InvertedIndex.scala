@@ -53,7 +53,7 @@ object InvertedIndex {
             text.trim.split("""[^\w']""") map (word => ((word, path), 1))
         }
         .reduceByKey{
-          case (count1, count2) => count1 + count2
+          (count1, count2) => count1 + count2
         }
         .map {
           case ((word, path), n) => (word, (path, n))
@@ -68,3 +68,4 @@ object InvertedIndex {
     }
   }
 }
+
