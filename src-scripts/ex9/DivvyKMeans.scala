@@ -13,27 +13,27 @@ import sqlContext.implicits._
 val initMode = KMeans.RANDOM
 val k = 10
 val numIterations = 100
-val stationsFile = "data/Divvy/stations-lat-long.csv"
-
 val divvyOut = "output/Divvy"
 FileUtil.mkdirs(divvyOut)
+val stationsFile = s"$divvyOut/stations-lat-long/data.csv"
 
-val stationsRDD = for {
-  line <- sc.textFile(stationsFile)
-  Array(lat, long) = line.split("\\s*,\\s*").map(_.toDouble)
-} yield (lat, long)
-val stations = stationsRDD.toDF("latitude", "longitude")
+def runKMeans() = {
+  val stationsRDD = for {
+    line <- sc.textFile(stationsFile)
+    Array(lat, long) = line.split("\\s*,\\s*").map(_.toDouble)
+  } yield (lat, long)
+  val stations = stationsRDD.toDF("latitude", "longitude")
 
-val stationsStatsRow = stations.
-  agg(
-    avg($"latitude"),  min($"latitude"),  max($"latitude"),
-    avg($"longitude"), min($"longitude"), max($"longitude")).
-  rdd.collect.head
+  val stationsStatsRow = stations.
+    agg(
+      avg($"latitude"),  min($"latitude"),  max($"latitude"),
+      avg($"longitude"), min($"longitude"), max($"longitude")).
+    rdd.collect.head
 
-val Vector(latAvg, latMin, latMax, longAvg, longMin, longMax) = for (
-  i <- 0 until stationsStatsRow.size) yield stationsStatsRow.getDouble(i)
-val latDelta  = latMax  - latMin
-val longDelta = longMax - longMin
+  val Vector(latAvg, latMin, latMax, longAvg, longMin, longMax) = for (
+    i <- 0 until stationsStatsRow.size) yield stationsStatsRow.getDouble(i)
+  val latDelta  = latMax  - latMin
+  val longDelta = longMax - longMin
 
 // Center at the averages and rescale to +- 0.5.
 // It's generally a good idea to scale "features" to be roughly the
@@ -149,3 +149,12 @@ def csvForSpreadSheet(dir: String = forPlottingOutDir, file: String = forPlottin
 //     for these points. Change the color and optionally the shape so you can
 //     distinguish these points from the others.
 // 13. Profit!
+
+FileUtil.ls(stationsFile) match {
+  case Nil =>
+    println("Required stations lat-long data ($stationsFile) doesn't exist.")
+    println("Please run src-scripts/ex9/DivvySetup.scala first.")
+    // stop
+  case _ => runKMeans()
+}
+
