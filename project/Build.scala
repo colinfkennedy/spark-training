@@ -29,7 +29,7 @@ object Resolvers {
 
 object Dependency {
   object Version {
-    val Spark        = "1.4.0"
+    val Spark        = "1.4.1"
     val ScalaTest    = "2.2.4"
     val ScalaCheck   = "1.12.2"
   }
@@ -38,6 +38,7 @@ object Dependency {
   val sparkStreaming = "org.apache.spark"  %% "spark-streaming" % Version.Spark  withSources()
   val sparkSQL       = "org.apache.spark"  %% "spark-sql"       % Version.Spark  withSources()
   val sparkRepl      = "org.apache.spark"  %% "spark-repl"      % Version.Spark  withSources()
+  val sparkMLlib     = "org.apache.spark"  %% "spark-mllib"     % Version.Spark  withSources()
   // We're not actually using the Hive module, because it pulls in a LOT of Hadoop dependencies:
   // val sparkHive      = "org.apache.spark"  %% "spark-hive"      % Version.Spark  withSources()
 
@@ -52,7 +53,7 @@ object Dependencies {
   import Dependency._
 
   val sparkWorkshop =
-    Seq(sparkCore, sparkStreaming, sparkSQL, sparkRepl,
+    Seq(sparkCore, sparkStreaming, sparkSQL, sparkRepl, sparkMLlib,
       scalaTest, scalaCheck, playJson)
 }
 

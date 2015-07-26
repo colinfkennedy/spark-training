@@ -9,10 +9,10 @@ object InvertedIndex {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("output/crawl")),
       CommandLineOptions.outputPath(Some("output/inverted-index")),
-      CommandLineOptions.master(Some("local[*]")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 
@@ -53,7 +53,7 @@ object InvertedIndex {
             text.trim.split("""[^\w']""") map (word => ((word, path), 1))
         }
         .reduceByKey{
-          case (count1, count2) => count1 + count2
+          (count1, count2) => count1 + count2
         }
         .map {
           case ((word, path), n) => (word, (path, n))
@@ -68,3 +68,4 @@ object InvertedIndex {
     }
   }
 }
+

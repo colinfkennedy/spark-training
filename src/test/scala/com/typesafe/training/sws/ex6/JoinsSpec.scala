@@ -14,7 +14,8 @@ class JoinsSpec extends FunSpec {
       TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
 
       Joins.main(Array(
-        "--quiet", "--input-path", in,
+        "--master", "local", "--quiet",
+        "--input-path", in,
         "--airports", "data/airline-flights/airports.csv",
         "--output-path", out))
 

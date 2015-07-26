@@ -28,8 +28,8 @@ object SparkSQLParquet {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
-      CommandLineOptions.master(Some("local[2]")),
+      this, "",
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.inputPath(Some("data/kjvdat.txt")),
       CommandLineOptions.outputPath(Some("output/verses.parquet")),
       CommandLineOptions.quiet)
@@ -38,6 +38,8 @@ object SparkSQLParquet {
 
     val sc = new SparkContext(argz("master"), "Spark SQL Parquet")
     val sqlContext = new SQLContext(sc)
+    // Change to a more reasonable default number of partitions (from 200)
+    sqlContext.setConf("spark.sql.shuffle.partitions", "4")
     import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
 
     try {
@@ -63,8 +65,8 @@ object SparkSQLParquet {
         parquetDir.delete
       }
 
-      // save() uses Parquet.
-      verses.write.save(outPath)
+      // You can also call verses.write.save(), which uses Parquet.
+      verses.write.parquet(outPath)
 
       // Now read it back in and use it:
       out.println(s"Reading in the Parquet file from $outPath:")

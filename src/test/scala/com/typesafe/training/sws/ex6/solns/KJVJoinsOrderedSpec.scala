@@ -13,8 +13,10 @@ class KJVJoinsOrderedSpec extends FunSpec {
       TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
 
       KJVJoinsOrdered.main(Array(
-        "--quiet", "--input-path", "data/kjvdat.txt",
-        "--abbreviations", "data/abbrevs-to-names.tsv", "--output-path", out))
+        "--master", "local", "--quiet",
+        "--input-path", "data/kjvdat.txt",
+        "--abbreviations", "data/abbrevs-to-names.tsv",
+        "--output-path", out))
 
       TestUtil.verifyAndClean(s"$out2/part-00000", golden, out2)
     }

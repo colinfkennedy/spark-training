@@ -18,7 +18,7 @@ import com.typesafe.training.data.Verse
 // "warehouse". HiveContext looks for data about the metastore (host, port, etc.)
 // by reading the local hive-site.xml.
 val hiveContext = new HiveContext(sc)
-import hiveContext.implicits_   // Make methods local, as for SQLContext
+import hiveContext.sql          // Make the sql method convenient to use
 
 // Determine the user name. Used in DDL statements.
 val user = sys.env.get("USER") match {
@@ -33,12 +33,14 @@ def print[T](msg: String, rdd: RDD[T], n: Int = 100): Unit = {
   rdd.take(n) foreach println
 }
 
-// The "hql" method let's us run the full set of Hive SQL statements.
+// The "sql" method let's us run the full set of Hive SQL statements
+// when we start with a HiveContext. (Previously, you used a separate hql()
+// method).
 
 // Let's create a database for our work:
 println("Create and use a work database:")
-hql("CREATE DATABASE work")
-hql("USE work")
+sql("CREATE DATABASE work")
+sql("USE work")
 
 // Let's create a table for our KJV data. Note that Hive lets us specify
 // the field separator for the data and we can make a table "external",
@@ -63,7 +65,7 @@ hql("USE work")
 //    defined above.
 
 println("Create the 'external' kjv Hive table:")
-hql(s"""
+sql(s"""
   CREATE EXTERNAL TABLE IF NOT EXISTS kjv (
     book    STRING,
     chapter INT,
@@ -74,12 +76,12 @@ hql(s"""
   """)
 
 print("How many records?: COUNT(*)",
-  hql("SELECT COUNT(*) FROM kjv"))
+  sql("SELECT COUNT(*) FROM kjv"))
 
 print("Print the first few records: LIMIT 10",
-  hql("SELECT * FROM kjv LIMIT 10"))
+  sql("SELECT * FROM kjv LIMIT 10"))
 
-val by_book = hql("""
+val by_book = sql("""
   SELECT * FROM (
     SELECT book, COUNT(*) AS count FROM kjv GROUP BY book) bc
   WHERE bc.book != ''
@@ -88,14 +90,14 @@ val by_book = hql("""
 print("Run a GROUP BY book query", by_book)
 
 print("SELECT verses with 'God'",
-  hql("SELECT * FROM kjv WHERE text LIKE '%God%'"))
+  sql("SELECT * FROM kjv WHERE text LIKE '%God%'"))
 
 // Drop the table and database. We're using Hive's embedded Derby SQL "database"
 // for the "metastore" (Table metadata, etc.) See the "metastore" subdirectory
 // you now have! Because the table is EXTERNAL, we only delete the metadata, but
 // not the table data itself.
-print("Drop the table.", hql("DROP TABLE kjv"))
-print("Drop the database.", hql"DROP DATABASE work")
+print("Drop the table.", sql("DROP TABLE kjv"))
+print("Drop the database.", sql("DROP DATABASE work"))
 
 // You would do this in your scripts, but not if running in SBT, as it does it
 // for you when you quit the console.
@@ -109,5 +111,5 @@ print("Drop the database.", hql"DROP DATABASE work")
 //  2. Try a JOIN with the "data/abbrevs_to_names.tsv" data to convert the
 //     book abbreviations to full titles. Follow the example above to create an
 //     EXTERNAL TABLE. Note: Use a separate directory!
-//  4. Play with the SchemaRDD DSL.
+//  4. Play with the DataFrame DSL.
 //  5. Try some of the other sacred text data files.

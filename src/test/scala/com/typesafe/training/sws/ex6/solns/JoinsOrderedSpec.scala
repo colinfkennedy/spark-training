@@ -14,7 +14,8 @@ class JoinsOrderedSpec extends FunSpec {
       TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
 
       JoinsOrdered.main(Array(
-        "--quiet", "--input-path", in,
+        "--master", "local", "--quiet",
+        "--input-path", in,
         "--airports", "data/airline-flights/airports.csv",
         "--output-path", out))
 

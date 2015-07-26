@@ -16,38 +16,43 @@ cleanupCommands += """
   sc.stop()
   """
 
-addCommandAlias("ex2a", "runMain com.typesafe.training.sws.ex2.WordCountA")
+addCommandAlias("ex2a",                       "runMain com.typesafe.training.sws.ex2.WordCountA")
 
-addCommandAlias("ex2",  "runMain com.typesafe.training.sws.ex2.WordCount")
+addCommandAlias("ex2",                        "runMain com.typesafe.training.sws.ex2.WordCount")
 
-addCommandAlias("ex3",  "runMain com.typesafe.training.sws.ex3.MatrixAddition")
+addCommandAlias("ex3",                        "runMain com.typesafe.training.sws.ex3.MatrixAddition")
 
-addCommandAlias("ex4a", "runMain com.typesafe.training.sws.ex4.Crawl")
+addCommandAlias("ex4-crawl",                  "runMain com.typesafe.training.sws.ex4.Crawl")
 
-addCommandAlias("ex4b", "runMain com.typesafe.training.sws.ex4.InvertedIndex")
+addCommandAlias("ex4-ii",                     "runMain com.typesafe.training.sws.ex4.InvertedIndex")
 
-addCommandAlias("ex5",  "runMain com.typesafe.training.sws.ex5.NGrams")
+addCommandAlias("ex5",                        "runMain com.typesafe.training.sws.ex5.NGrams")
 
-addCommandAlias("ex6a",  "runMain com.typesafe.training.sws.ex6.Joins")
+addCommandAlias("ex6-joins",                  "runMain com.typesafe.training.sws.ex6.Joins")
 
-addCommandAlias("ex6b",  "runMain com.typesafe.training.sws.ex6.DataShuffling")
+addCommandAlias("ex6-shuffle",                "runMain com.typesafe.training.sws.ex6.DataShuffling")
 
-addCommandAlias("ex7a", "runMain com.typesafe.training.sws.ex7.SparkDataFrames")
+addCommandAlias("ex7-df",                     "runMain com.typesafe.training.sws.ex7.SparkDataFrames")
 
-addCommandAlias("ex7b", "runMain com.typesafe.training.sws.ex7.SparkSQL")
+addCommandAlias("ex7-sql",                    "runMain com.typesafe.training.sws.ex7.SparkSQL")
 
-addCommandAlias("ex7c", "runMain com.typesafe.training.sws.ex7.SparkSQLParquet")
+addCommandAlias("ex7-parquet",                "runMain com.typesafe.training.sws.ex7.SparkSQLParquet")
 
-addCommandAlias("ex8a", "runMain com.typesafe.training.sws.ex8.SparkStreaming")
+addCommandAlias("ex8-flights-backend",        "runMain com.typesafe.training.sws.ex8.flights.FlightsBackend")
 
-addCommandAlias("ex8b", "runMain com.typesafe.training.sws.ex8.SparkStreamingSQL")
+addCommandAlias("ex8-flights-backend-socket", "runMain com.typesafe.training.sws.ex8.flights.FlightsBackend --socket localhost:10000")
 
-addCommandAlias("wiki-backend", "runMain com.typesafe.training.sws.ex8.wikichanges.WikiChangesBackend")
+addCommandAlias("ex8-flights-df",             "runMain com.typesafe.training.sws.ex8.flights.FlightsDataFrame")
 
-addCommandAlias("predict-news", "runMain com.typesafe.training.sws.ex8.wikichanges.PredictBreakingNews")
+addCommandAlias("ex8-flights-sql",            "runMain com.typesafe.training.sws.ex8.flights.FlightsSQL")
 
-// Use this one to run the driver for the SparkStreaming example:
-addCommandAlias("ex8main",  "runMain com.typesafe.training.sws.ex8.SparkStreamingMain")
+addCommandAlias("ex8-wiki-backend",           "runMain com.typesafe.training.sws.ex8.wikichanges.WikiChangesBackend")
+
+addCommandAlias("ex8-predict-news",           "runMain com.typesafe.training.sws.ex8.wikichanges.PredictBreakingNews")
+
+addCommandAlias("ex9-stations",               "runMain com.typesafe.training.sws.ex9.DivvyStations")
+
+addCommandAlias("ex9-kmeans",                 "runMain com.typesafe.training.sws.ex9.DivvyKMeans")
 
 
 fork := true

@@ -15,7 +15,9 @@ class SparkSQLParquetSpec extends FunSpec {
       val fileStream = new FileOutputStream(new File(out))
       SparkSQLParquet.out = new PrintStream(fileStream, true)
 
-      SparkSQLParquet.main(Array("--master", "local", "--quiet", "--in", in))
+      SparkSQLParquet.main(Array(
+        "--master", "local", "--quiet",
+        "--in", in))
 
       TestUtil.verifyAndClean(out, golden, out)
     }

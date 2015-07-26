@@ -16,11 +16,11 @@ object Joins {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/airline-flights/alaska-airlines/2008.csv")),
       ExtraCommandLineOptions.airports(Some("data/airline-flights/airports.csv")),
       CommandLineOptions.outputPath(Some("output/airline-flights-airports-join")),
-      CommandLineOptions.master(Some("local")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 
@@ -52,7 +52,7 @@ object Joins {
       val flights_airports = flights.join(airports)
 
       println("flights_airports.toDebugString:")
-      flights_airports.toDebugString
+      println(flights_airports.toDebugString)
 
       if (flights.count != flights_airports.count) {
         println(s"flights count, ${flights.count}, doesn't match output count, ${flights_airports.count}")

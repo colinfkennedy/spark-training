@@ -1,5 +1,5 @@
 import com.typesafe.training.data.Airport
-import org.apache.spark.SparkContext
+import org.apache.spark.{HashPartitioner, RangePartitioner, SparkContext}
 import org.apache.spark.rdd.RDD
 
 // Script version of com.typesafe.training.sws.ex6.DataShuffling.
@@ -13,6 +13,8 @@ val airports = for {
   line <- sc.textFile(airportsFile)
   airport <- Airport.parse(line)
 } yield airport.iata -> airport.airport
+// Play with partitioning, with different # and with RangePartitioner:
+// airports.partitionBy(new HashPartitioner(partitions = 64))
 airports.cache
 
 // Just the IATA
@@ -22,11 +24,15 @@ val airportCodesSample = airports.map(tup => tup._1).takeSample(true, 1000)
 // out of the given array of airport codes.
 def generateFlightLog(codes: Array[String]): RDD[(String, (String, String))] = {
   import scala.util.Random._
-  sc.parallelize((1 to 50) map { i =>
+  // Try replacing "50" with other upper bounds:
+  val log = sc.parallelize((1 to 50) map { i =>
     val origin = codes(nextInt(codes.length))
     val dest = codes(nextInt(codes.length))
     (origin, (dest, s"Random flight data $i"))
   })
+  // Play with partitioning, with different # and with RangePartitioner:
+  // log.partitionBy(new HashPartitioner(partitions = 64))
+  log
 }
 
 def processFlightEveryFiveSeconds(callback: (RDD[(String, (String, String))]) => Unit): Unit = {

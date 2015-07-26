@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 import scala.io.Source
 
 /**
- * Serves data over a socket for the SparkStreaming example.
+ * Serves data over a socket for the Flights example.
  * An alternative to invoking this code as a separate program is to invoke
  * the {@link run} method in a dedicated thread in another application.
  */
@@ -14,6 +14,10 @@ class DataSocketServer(
   import DataSocketServer._
 
   def run: Unit = {
+      println(s"""DataSocketServer:
+        |  Port:      $port
+        |  Data file: $dataFile
+        |""".stripMargin)
     val listener = new ServerSocket(port);
     var socketOption: Option[Socket] = None
     var fileOption: Option[File] = None

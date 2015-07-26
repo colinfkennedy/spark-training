@@ -7,20 +7,24 @@ import CommandLineOptions.{Opt, NameValue, Parser}
  * Handles command-line argument processing for scripts that take
  * help, input, and output arguments.
  */
-case class CommandLineOptions(programName: String, extraHelp: String, opts: Opt*) {
+case class CommandLineOptions(mainObject: AnyRef, extraHelp: String, opts: Opt*) {
 
   private def toHelp(opt: Opt): String =
     if (opt.value == None) opt.help
-    else opt.help + s" (default: ${opt.value.get})"
+    else opt.help + s"\n                                    (default: ${opt.value.get})"
+
+  val programName = mainObject.getClass.getName.replace("$", "")
 
   // Help message
   def helpMsg = s"""
-    |usage: java -cp ... $programName [options]
+    |usage: scala -cp ... $programName [options]
+    |
     |where the options are the following:
-    |  -h | --help  Show this message and quit.
+    |
+    |  -h | --help                       Show this message and quit.
     |""".stripMargin +
       opts.map(opt => toHelp(opt)).mkString("  ", "\n  ", "") +
-      extraHelp + "\n"
+      "\n\n" + extraHelp + "\n"
 
   lazy val matchers: Parser =
     (opts foldLeft help) {
@@ -100,7 +104,7 @@ object CommandLineOptions {
   def inputPath(value: Option[String] = None): Opt = Opt(
     name   = "input-path",
     value  = value,
-    help   = s"-i | --in  | --input-path  path   The input root directory of files to crawl.",
+    help   = "-i | --in  | --input-path  path   The input root directory of files to crawl.",
     parser = {
       case ("-i" | "--in" | "--input-path") +: path +: tail => (("input-path", path), tail)
     })
@@ -109,7 +113,7 @@ object CommandLineOptions {
   def outputPath(value: Option[String] = None): Opt = Opt(
     name   = "output-path",
     value  = value,
-    help   = s"-o | --out | --output-path path   The output location.",
+    help   = "-o | --out | --output-path path   The output location.",
     parser = {
       case ("-o" | "--out" | "--output-path") +: path +: tail => (("output-path", path), tail)
     })
@@ -139,6 +143,8 @@ object CommandLineOptions {
       case ("--of" | "--output-format") +: FileFormat(fmt) +: tail =>
         (("output-format", fmt.commandLineArg), tail)
     })
+
+  val defaultMaster = "local[*]"
 
   /** Common argument: The Spark "master" */
   def master(value: Option[String] = None): Opt = Opt(
@@ -231,4 +237,33 @@ object CommandLineOptions {
     parser = {
       case ("-w | --win" | "--window") +: nm +: tail => (("window", nm), tail)
     })
+
+  /**
+   * The checkpoint directory.
+   */
+  def checkpointDirectory(path: Option[String] = None): Opt = Opt(
+    name   = "checkpoint-directory",
+    value  = path,
+    help   = s"""
+       |  -cd | --checkpoint-dir | --checkpoint-directory  dir  The checkpoint directory.
+       |                                                        """.stripMargin,
+    parser = {
+      case ("-cd" | "--checkpoint-dir" | "--checkpoint-directory") +: dir +: tail => (("checkpoint-directory", dir), tail)
+    })
+
+  /**
+   * Should the checkpoint directory be deleted on *start*?
+   * Use to start "clean" (default: true).
+   */
+  object DeleteCheckpointDirectory {
+    def apply(value: Option[Boolean]): Opt = Opt(
+      name   = "delete-checkpoint-directory",
+      value  = value.map(_.toString),
+      help   = s"""
+         |  -dc | --delete-checkpoint-directory tf  Delete the checkpoint directory on start.
+         |                                          """.stripMargin,
+      parser = {
+        case ("-dc" | "--delete-checkpoint-directory") +: tf +: tail => (("delete-checkpoint-directory", tf), tail)
+      })
+  }
 }

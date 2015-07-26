@@ -15,7 +15,9 @@ class SparkDataFramesSpec extends FunSpec {
       val fileStream = new FileOutputStream(new File(out))
       SparkDataFrames.out = new PrintStream(fileStream, true)
 
-      SparkDataFrames.main(Array("--quiet", "--in", in))
+      SparkDataFrames.main(Array(
+        "--master", "local", "--quiet",
+        "--in", in))
 
       TestUtil.verifyAndClean(out, golden, out)
     }

@@ -13,7 +13,9 @@ class WordCountSpec extends FunSpec {
       TestUtil.testAndRemove(out+"-")  // Delete previous runs, if necessary.
 
       WordCount.main(Array(
-        "--quiet", "--input-path", "data/all-shakespeare.txt", "--output-path", out))
+        "--master", "local", "--quiet",
+        "--input-path", "data/all-shakespeare.txt",
+        "--output-path", out))
 
       TestUtil.verifyAndClean(out2, golden, out)
     }

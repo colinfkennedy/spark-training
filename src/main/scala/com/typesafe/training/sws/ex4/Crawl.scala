@@ -25,10 +25,10 @@ object Crawl {
   def main(args: Array[String]): Unit = {
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/enron-spam-ham/*")), // Note the *
       CommandLineOptions.outputPath(Some("output/crawl")),
-      CommandLineOptions.master(Some("local[*]")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 

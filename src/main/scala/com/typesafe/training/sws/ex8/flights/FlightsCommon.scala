@@ -1,6 +1,6 @@
-package com.typesafe.training.sws.ex8
+package com.typesafe.training.sws.ex8.flights
 
-import com.typesafe.training.util.CommandLineOptions
+import com.typesafe.training.util.{CommandLineOptions, FileUtil}
 import com.typesafe.training.util.CommandLineOptions.Opt
 import com.typesafe.training.data._
 import org.apache.spark.{SparkConf, SparkContext}
@@ -12,13 +12,15 @@ import org.apache.spark.streaming.dstream.{InputDStream, DStream}
 import org.apache.hadoop.mapreduce.lib.input.InvalidInputException
 import java.io.{File, PrintStream}
 
-object SparkStreamingCommon {
+object FlightsCommon {
 
+  /**
+   * A function to select the calculation to do, flights between airports
+   * or flight delay statistics (default).
+   */
   object WhichAnalysis {
-    /**
-     * A function to select the calculation to do, flights between airports
-     * or flight delay statistics (default).
-     */
+    val default = 1
+
     def apply(value: Option[Int]): Opt = Opt(
       name   = "analysis",
       value  = value.map(_.toString),
@@ -27,18 +29,36 @@ object SparkStreamingCommon {
         case ("-a" | "--analysis") +: n +: tail => (("analysis", n), tail)
       })
   }
+
+  /**
+   * The directory to watch for new files, when using that option.
+   */
+  object WatchDirectory {
+    val default = "output/watch/airline-flights"
+
+    def apply(path: Option[String] = None): Opt = Opt(
+      name   = "watch-directory",
+      value  = path,
+      help   = s"""
+         |  -wd | --watch-dir | --watch-directory  dir  The directory to watch for updates.
+         |                                             """.stripMargin,
+      parser = {
+        case ("-wd" | "--watch-dir" | "--watch-directory") +: dir +: tail => (("watch-directory", dir), tail)
+      })
+  }
+
+  val defaultCheckpointDirectory = "output/streaming-checkpoint"
 }
 
 /**
  * Shared code between the different implementations of the Spark Streaming
  * example.
  */
-abstract class SparkStreamingCommon {
+abstract class FlightsCommon {
 
   val defaultInterval = 2        // 2 second
   val defaultTimeout  = 15       // 15 seconds
   // In production, put this in HDFS, S3, or other resilient filesystem.
-  val checkpointDirectory = "output/ss-checkpoint"
 
   protected var quiet = false
 
@@ -48,16 +68,18 @@ abstract class SparkStreamingCommon {
 
   protected def processOptions(args: Array[String]): Map[String,String] = {
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "Use --socket or --input-path arguments",
+      this, "Use --socket or --input-path arguments",
       // For this process, use at least 2 cores!
-      CommandLineOptions.master(Some("local[*]")),
-      CommandLineOptions.inputPath(Some("data/airline-flights/tmp")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
+      FlightsCommon.WatchDirectory(Some(FlightsCommon.WatchDirectory.default)),
       CommandLineOptions.outputPath(Some("output/streaming/airline-stats")),
       CommandLineOptions.socket(None),  // empty default, so we know the user specified this option.
       CommandLineOptions.timeout(Some(defaultTimeout)),
       CommandLineOptions.interval(Some(Seconds(defaultInterval))),
       CommandLineOptions.window(),
-      SparkStreamingCommon.WhichAnalysis(Some(1)),
+      FlightsCommon.WhichAnalysis(Some(FlightsCommon.WhichAnalysis.default)),
+      CommandLineOptions.checkpointDirectory(Some(FlightsCommon.defaultCheckpointDirectory)),
+      CommandLineOptions.DeleteCheckpointDirectory(Some(true)),
       CommandLineOptions.noterm,
       CommandLineOptions.quiet)
     val argz = options(args.toList)
@@ -73,11 +95,22 @@ abstract class SparkStreamingCommon {
   protected def initMain(args: Array[String]): Unit = {
 
     val argz = processOptions(args)
-    quiet = argz.get("quiet") != None
+    val master = argz("master")
+    val quiet = argz.getOrElse("quiet", "false").toBoolean
     val outPathRoot = argz("output-path")
     val interval = argz("interval").toInt
     val (window, slide) = CommandLineOptions.toWindowSlide(argz("window"))
     val airportsOutPath = s"$outPathRoot-airports.csv"
+    val checkpointDir = argz("checkpoint-directory")
+
+    if (master.startsWith("local")) {
+      val out = argz("output-path")
+      if (!quiet) println(s" **** Deleting old output (if any), $out:")
+      FileUtil.rmrf(out)
+    }
+    if (argz("delete-checkpoint-directory").toBoolean) {
+      FileUtil.rmrf(checkpointDir)
+    }
 
     // Use a configuration object this time for greater flexibility.
     // "spark.cleaner.ttl" (defaults to infinite) is the duration in seconds
@@ -95,10 +128,10 @@ abstract class SparkStreamingCommon {
 
     def createContext(): StreamingContext = {
       val ssc = new StreamingContext(sc, Seconds(interval))
-      ssc.checkpoint(checkpointDirectory)
+      ssc.checkpoint(checkpointDir)
 
       val linesDStream = argz.get("socket") match {
-        case None => useFiles(ssc, argz("input-path"))
+        case None => useFiles(ssc, argz("watch-directory"))
         case Some(socket) => useSocket(ssc, socket)
       }
       val flights = for {
@@ -122,7 +155,7 @@ abstract class SparkStreamingCommon {
       // The preferred way to construct a StreamingContext, because if the
       // program is restarted, e.g., due to a crash, it will pick up where it
       // left off. Otherwise, it starts a new job.
-      ssc = StreamingContext.getOrCreate(checkpointDirectory, createContext _)
+      ssc = StreamingContext.getOrCreate(checkpointDir, createContext _)
       ssc.start()
 
       val noterm  = argz.getOrElse("no-term", "false").toBoolean
@@ -133,15 +166,19 @@ abstract class SparkStreamingCommon {
     } catch {
       case iie: InvalidInputException =>
         Console.err.println(s"""
-          |===============================================================
-          |InvalidInputException thrown: $iie
+          |=====================================================================
+          |InvalidInputException thrown:
+          |  $iie
           |
-          |If the message says that the "input path" doesn't exist and the path includes ${argz("input-path")},
-          |then try deleting the checkpoint directory: $checkpointDirectory.
-          |===============================================================
+          |If the message says that the "input path" doesn't exist and the
+          |path includes ${argz("input-path")}, then try deleting the checkpoint
+          |directory: $checkpointDir.
+          |=====================================================================
           |""".stripMargin)
     } finally {
-      ssc.stop(stopSparkContext = true, stopGracefully = true)
+      if (ssc != null) {
+        ssc.stop(stopSparkContext = true, stopGracefully = true)
+      }
     }
   }
 

@@ -25,12 +25,12 @@ object SparkSQL {
 
     // We'll use Alaska Airlines data to reduce the size of the data set.
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/airline-flights/alaska-airlines/2008.csv")),
       ExtraCommandLineOptions.carriers(Some("data/airline-flights/carriers.csv")),
       ExtraCommandLineOptions.airports(Some("data/airline-flights/airports.csv")),
       ExtraCommandLineOptions.planes(Some("data/airline-flights/plane-data.csv")),
-      CommandLineOptions.master(Some("local[*]")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz  = options(args.toList)
 
@@ -38,6 +38,8 @@ object SparkSQL {
 
     val sc = new SparkContext(argz("master"), "Spark SQL")
     sqlContext = new SQLContext(sc)
+    // Change to a more reasonable default number of partitions (from 200)
+    sqlContext.setConf("spark.sql.shuffle.partitions", "4")
 
     try {
       // Use a pattern match to extract the four RDDs into named variables:

@@ -4,6 +4,9 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.sql.SQLContext
 
+// Change to a more reasonable default number of partitions (from 200)
+sqlContext.setConf("spark.sql.shuffle.partitions", "4")
+
 // Our settings for sbt console and spark-shell both define the following for us:
 // val sqlContext = new SQLContext(sc)
 // import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
@@ -35,8 +38,8 @@ if (parquetDir.exists) {
   parquetDir.delete
 }
 
-// save() uses Parquet.
-verses.write.save(outputPath)
+// You can also call verses.write.save(), which uses Parquet.
+verses.write.parquet(outputPath)
 
 // Now read it back in and use it:
 println(s"Reading in the Parquet file from $outputPath:")

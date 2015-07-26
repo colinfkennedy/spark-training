@@ -23,13 +23,13 @@ object SparkDataFrames {
 
     // We'll use Alaska Airlines data to reduce the size of the data set.
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/airline-flights/alaska-airlines/2008.csv")),
       ExtraCommandLineOptions.carriers(Some("data/airline-flights/carriers.csv")),
       ExtraCommandLineOptions.airports(Some("data/airline-flights/airports.csv")),
       ExtraCommandLineOptions.planes(Some("data/airline-flights/plane-data.csv")),
       ExtraCommandLineOptions.tungstenMode,
-      CommandLineOptions.master(Some("local[*]")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz  = options(args.toList)
 
@@ -44,6 +44,8 @@ object SparkDataFrames {
       conf.set("spark.sql.unsafe.enabled", "true")
       conf.set("spark.shuffle.manager", "tungsten-sort")
     }
+    // Change to a more reasonable default number of partitions (from 200)
+    conf.set("spark.sql.shuffle.partitions", "4")
     val sc = new SparkContext(conf)
     val sqlContext = new SQLContext(sc)
     import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.

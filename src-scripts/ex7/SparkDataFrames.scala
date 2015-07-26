@@ -9,6 +9,9 @@ import org.apache.spark.sql.{SQLContext, DataFrame}
 // val sqlContext = new SQLContext(sc)
 // import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
 
+// Change to a more reasonable default number of partitions (from 200)
+sqlContext.setConf("spark.sql.shuffle.partitions", "4")
+
 val flightsPath  = "data/airline-flights/alaska-airlines/2008.csv"
 val carriersPath = "data/airline-flights/carriers.csv"
 val airportsPath = "data/airline-flights/airports.csv"
@@ -63,16 +66,19 @@ canceled_flights.cache
 flights.orderBy(flights("origin")).show
 flights.orderBy("origin").show
 flights.orderBy($"origin").show
+// Switch to descending sort:
 flights.orderBy($"origin".desc).show
+// Two or more columns:
+flights.orderBy(flights("origin"), flights("dest")).show
 
-// The last one $"count".desc is the only (?) way to specify descending order.
+// The $"count".desc syntax appears to be the only (?) way to specify
+// descending order.
 // The $"..." is not a Scala feature, but Scala allows you to implement
-// "interpolated string" handlers with your own prefix ($ in this case).
+// "interpolated string" handlers with your own prefix, `$` in this case.
 
 // SELECT cf.date.month AS month, COUNT(*)
 //   FROM canceled_flights cf
 //   GROUP BY cf.date.month
-//   ORDER BY month;
 val canceled_flights_by_month = canceled_flights.
   groupBy("date.month").count()
 Printer(Console.out, "canceled flights by month", canceled_flights_by_month)

@@ -18,10 +18,10 @@ object WordCount {
     // an illustration of how it's convenient that we can mix "normal" code
     // with "big data" processing code.
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/all-shakespeare.txt")),
       CommandLineOptions.outputPath(Some("output/shakespeare-wc")),
-      CommandLineOptions.master(Some("local")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 

@@ -100,11 +100,11 @@ object KJVJoinsOrdered {
       "Rev" -> 66)
 
     val options = CommandLineOptions(
-      this.getClass.getSimpleName, "",
+      this, "",
       CommandLineOptions.inputPath(Some("data/kjvdat.txt")),
       ExtraCommandLineOptions.abbrevs(Some("data/abbrevs-to-names.tsv")),
       CommandLineOptions.outputPath(Some("output/kjv-joins-ordered")),
-      CommandLineOptions.master(Some("local")),
+      CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
 

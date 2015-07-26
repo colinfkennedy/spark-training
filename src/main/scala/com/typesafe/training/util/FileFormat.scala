@@ -15,7 +15,7 @@ object FileFormat {
     case "csv"         => Some(CSV)
     case "tsv"         => Some(TSV)
     case "line"        => Some(Line)
-    case "seq"         => Some(Seq)
+    case "seq"         => Some(Sequence)
     case parquetRE()   => Some(Parquet)
     case "orc"         => Some(ORCFile)
     case _ => None
@@ -43,7 +43,7 @@ case object Line extends FileFormat {
 }
 
 /** Sequence file format. */
-case object Seq extends FileFormat {
+case object Sequence extends FileFormat {
   val commandLineArg = "seq"
 }
 
