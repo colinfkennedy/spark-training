@@ -50,4 +50,19 @@ object FileUtil {
    * @return true if successful or false if not.
    */
   def mkdirs(path: File): Boolean = path.mkdirs
+
+  /**
+   * List ("ls") a file or the contents of a directory.
+   * @return Seq[File] with contents or empty if input path doesn't exist.
+   */
+  def ls(path: File): Seq[File] =
+    if (path.exists == false) Nil
+    else if (path.isFile) Seq(path)
+    else path.listFiles.toSeq
+
+  /**
+   * List ("ls") a file or the contents of a directory.
+   * @return Seq[File] with contents or empty if input path doesn't exist.
+   */
+  def ls(path: String): Seq[File] = ls(new File(path))
 }
