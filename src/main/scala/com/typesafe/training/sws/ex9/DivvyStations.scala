@@ -7,7 +7,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 import com.typesafe.training.data._
-import com.typesafe.training.util.{FileUtil, ZipUtil}
+import com.typesafe.training.util.FileUtil
 import java.io.File
 import scala.util.{Try, Success, Failure}
 
@@ -56,6 +56,13 @@ object DivvyStations {
     val latLongOut = new java.io.PrintWriter(targetFile)
     stationsLatLong.collect.sortBy(rec => rec).foreach(latLongOut.println)
     latLongOut.close()
+    FileUtil.ls(targetFile) match {
+      case Nil =>
+        println(s"Stations file construction appeared to work, but file $targetFileName is not there!")
+        false
+      case _ =>
+        println(s"Stations file is $targetFileName")
+    }
     true
   } catch {
     case scala.util.control.NonFatal(ex) =>
@@ -66,17 +73,19 @@ object DivvyStations {
   def download(divvyDir: String): Boolean = {
     print("Checking that Divvy data is already setup... ")
     FileUtil.ls(divvyDir) match {
-    case Nil =>
-      println(s"Downloading and setting up Divvy data in $divvyDir ... ")
-      if (DivvySetup.run() == false) {
-        println("Setup failed!")
-        false
-      } else {
-        println("Setup succeeded!")
+      case Nil =>
+        println(s"Downloading and setting up Divvy data in $divvyDir ... ")
+        if (DivvySetup.run() == false) {
+          println("Setup failed!")
+          false
+        } else {
+          println("Setup succeeded!")
+          true
+        }
+      case _ =>
+        println("yes")
         true
-    case _ =>
-      println("yes")
-      true
+    }
   }
 
   // For nicely formatting a variable argument list of Double values
