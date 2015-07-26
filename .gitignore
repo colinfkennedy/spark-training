@@ -31,6 +31,7 @@ output/*parquet
 output/*json
 output/*checkpoint
 output/Divvy
+output/DivvyZip
 project/.sbtserver
 project/.sbtserver.lock
 project/play-fork-run.sbt

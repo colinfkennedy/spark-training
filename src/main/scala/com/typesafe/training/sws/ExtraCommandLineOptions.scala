@@ -12,7 +12,6 @@ object ExtraCommandLineOptions {
 
   /**
    * A lookup table of abbreviations and full names. Used for the "sacred texts".
-   * @type {[type]}
    */
   def abbrevs(abbrevsFile: Option[String]): Opt = Opt(
     name   = "abbreviations",
@@ -24,7 +23,6 @@ object ExtraCommandLineOptions {
 
   /**
    * Airport data
-   * @type {[type]}
    */
   def airports(airportsFile: Option[String]): Opt = Opt(
     name   = "airports",
@@ -36,7 +34,6 @@ object ExtraCommandLineOptions {
 
   /**
    * Carrier data
-   * @type {[type]}
    */
   def carriers(carriersFile: Option[String]): Opt = Opt(
     name   = "carriers",
@@ -48,7 +45,6 @@ object ExtraCommandLineOptions {
 
   /**
    * Plane data
-   * @type {[type]}
    */
   def planes(planesFile: Option[String]): Opt = Opt(
     name   = "planes",

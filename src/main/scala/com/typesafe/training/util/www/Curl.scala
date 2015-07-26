@@ -13,8 +13,8 @@ object Curl {
     targetDirectory: File,
     showProgress: Boolean): Try[File] = Try {
       val sourceFileName = sourceURL.getFile.split("/").last
-      val sep = File.separator
-      val outFileName = targetDirectory.getPath + sep + sourceFileName
+      val pathSep = File.separator
+      val outFileName = targetDirectory.getPath + pathSep + sourceFileName
 
       if (showProgress) println(s"Downloading $sourceURL to $outFileName")
       val connection = sourceURL.openConnection()

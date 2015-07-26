@@ -10,22 +10,21 @@ import scala.util.{Try, Success, Failure}
  * See https://www.divvybikes.com/datachallenge
  * Hence, you'll need an internet connection to run this program.
  */
-object DivvySetup {
+object DivvySetup extends DivvyCommon {
 
   def main(args: Array[String]): Unit = {
     val success = if (run()) 0 else 1
     sys.exit(success)
   }
 
-  val zipDir    = "output/DivvyZip"
-  val divvyDir  = "data/Divvy"
+  val zipDir = "output/DivvyZip"
 
-  def run(targetDir: String = divvyDir): Boolean = {
+  def run(targetDir: String = defaultDivvyDir): Boolean = {
 
     val sep       = File.separator
     val divvyURL  = "https://s3.amazonaws.com/divvy-data/datachallenge/datachallenge.zip"
     val zipName   = divvyURL.split("/").last
-    val zipFile   = zipDir + sep + zipName
+    val zipFile   = zipDir + pathSep + zipName
 
     Curl(divvyURL, zipDir, showProgress = true) match {
       case Failure(ex) =>

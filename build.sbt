@@ -50,9 +50,9 @@ addCommandAlias("ex8-wiki-backend",           "runMain com.typesafe.training.sws
 
 addCommandAlias("ex8-predict-news",           "runMain com.typesafe.training.sws.ex8.wikichanges.PredictBreakingNews")
 
-addCommandAlias("ex9-setup",                  "runMain com.typesafe.training.sws.ex9.DivvySetup")
-
 addCommandAlias("ex9-stations",               "runMain com.typesafe.training.sws.ex9.DivvyStations")
+
+addCommandAlias("ex9-kmeans",                 "runMain com.typesafe.training.sws.ex9.DivvyKMeans")
 
 
 fork := true

@@ -13,28 +13,24 @@ import scala.util.{Try, Success, Failure}
 
 /**
  * Constructs Divvy station lat-long data in `output/Divvy/stations-lat-long`
- * from the downloaded Divvy data
+ * from the downloaded Divvy data.
  */
-object DivvyStations {
+object DivvyStations extends DivvyCommon {
 
   def main(args: Array[String]): Unit = {
     val success = if (setup()) 0 else 1
     sys.exit(success)
   }
 
-  val sep = File.separator
-  val divvyDirName  = "data/Divvy"
-  val outputDirName = "output/Divvy"
-
-  def setup(inputDir: String = divvyDirName, outputDir: String = outputDirName): Boolean = {
+  def setup(inputDir: String = defaultDivvyDir, outputDir: String = defaultDivvyOutputDir): Boolean = {
     // Note the unfortunate whitespace that will be in the unzipped contents.
     // If the whitespace causes problems with subsequent usage, remove spaces
     // from this directory manually and change "dataRoot" accordingly.
     val dataRoot =
-      inputDir + sep + "Data Challenge 2013_2014" + sep + "Divvy_Stations_Trips_2013"
-    val stationsFile = dataRoot + sep + "Divvy_Stations_2013.csv"
-    val stationsLatLongDir  = outputDir + sep + "stations-lat-long"
-    val stationsLatLongFile = stationsLatLongDir + sep + "data.csv"
+      inputDir + pathSep + "Data Challenge 2013_2014" + pathSep + "Divvy_Stations_Trips_2013"
+    val stationsFile = dataRoot + pathSep + "Divvy_Stations_2013.csv"
+    val stationsLatLongDir  = outputDir + pathSep + "stations-lat-long"
+    val stationsLatLongFile = stationsLatLongDir + pathSep + "data.csv"
 
     download(inputDir) && makeStationsLatLong(stationsLatLongFile, stationsFile)
   }
@@ -87,11 +83,5 @@ object DivvyStations {
         true
     }
   }
-
-  // For nicely formatting a variable argument list of Double values
-  // to 5 decimal places.
-  def formatDoubles(ds: Double*): String =
-    ds.toSeq.map(d => f"$d%.5f").mkString(",")
-
 }
 
