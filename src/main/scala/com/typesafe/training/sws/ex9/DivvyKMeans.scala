@@ -30,16 +30,17 @@ object DivvyKMeans extends DivvyCommon {
       KMeansCommandLineOptions.numberIterations(Some(100)),
       KMeansCommandLineOptions.initializationMode(Some(KMeans.RANDOM)),
       CommandLineOptions.quiet)
-    val argz  = options(args.toList)
+    val argz          = options(args.toList)
     val stationsFile  = argz("input-path")
+    val master        = argz("master")
+    quiet             = argz.getOrElse("quiet", "false").toBoolean
 
-    FileUtil.ls(stationsFile) match {
-      case Nil =>
-        println(s"Required stations lat-long data ($stationsFile) doesn't exist.")
-        println("Please run src/.../ex9/DivvyStations.scala first.")
-        // stop
-      case _ => runKMeans(argz)
+    if (FileUtil.ls(stationsFile) == Nil) {
+      if (!quiet) println(s"Required stations lat-long data ($stationsFile) doesn't exist. Running DivvyStations...")
+      // TODO: use the defaultDivvyDir, but it only works if "stationsFile" is a "grandchild" of it.
+      DivvyStations.setup(defaultDivvyDir, defaultDivvyOutputDir, master)
     }
+    runKMeans(argz)
   }
 
   private def runKMeans(argz: Map[String,String]) = {
@@ -49,100 +50,105 @@ object DivvyKMeans extends DivvyCommon {
     val numIterations = argz("number-iterations").toInt
     val stationsFile  = argz("input-path")
     val outputDir     = argz("output-path")
-    quiet             = argz.getOrElse("quiet", "false").toBoolean
 
-    val sc = new SparkContext(master, "DivvyKMeans")
-    val sqlContext = new SQLContext(sc)
-    import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
-    sqlContext.setConf("spark.sql.shuffle.partitions", "4")
+    var sc: SparkContext = null
 
-    val stationsRDD = for {
-      line <- sc.textFile(stationsFile)
-      Array(lat, long) = line.split("\\s*,\\s*").map(_.toDouble)
-    } yield (lat, long)
-    val stations = stationsRDD.toDF("latitude", "longitude")
+    try {
+      sc = new SparkContext(master, "DivvyKMeans")
+      val sqlContext = new SQLContext(sc)
+      import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
+      sqlContext.setConf("spark.sql.shuffle.partitions", "4")
 
-    val stationsStatsRow = stations.
-      agg(
-        avg($"latitude"),  min($"latitude"),  max($"latitude"),
-        avg($"longitude"), min($"longitude"), max($"longitude")).
-      rdd.collect.head
+      val stationsRDD = for {
+        line <- sc.textFile(stationsFile)
+        Array(lat, long) = line.split("\\s*,\\s*").map(_.toDouble)
+      } yield (lat, long)
+      val stations = stationsRDD.toDF("latitude", "longitude")
 
-    val Vector(latAvg, latMin, latMax, longAvg, longMin, longMax) = for (
-      i <- 0 until stationsStatsRow.size) yield stationsStatsRow.getDouble(i)
-    val latDelta  = latMax  - latMin
-    val longDelta = longMax - longMin
+      val stationsStatsRow = stations.
+        agg(
+          avg($"latitude"),  min($"latitude"),  max($"latitude"),
+          avg($"longitude"), min($"longitude"), max($"longitude")).
+        rdd.collect.head
 
-    // Center at the averages and rescale to +- 0.5.
-    // It's generally a good idea to scale "features" to be roughly the
-    // same order of magnitude and centered roughly around zero.
-    // It can also help prevent floating-point round-off errors for
-    // some data sets. However, in this case, the effect on the result is
-    // actually fairly negligible. (Try using the station data without scaling...)
-    val stationsScaled = stations.
-      select(($"latitude" - latAvg ) / latDelta, ($"longitude" - longAvg) / longDelta)
+      val Vector(latAvg, latMin, latMax, longAvg, longMin, longMax) = for (
+        i <- 0 until stationsStatsRow.size) yield stationsStatsRow.getDouble(i)
+      val latDelta  = latMax  - latMin
+      val longDelta = longMax - longMin
 
-    if (!quiet) {
-      val sanity = stationsScaled.toDF("latadj", "longadj").
-        agg(min("latadj"), max("latadj"),
-            min("longadj"), max("longadj"),
-            max("latadj") - min("latadj"),
-            max("longadj") - min("longadj")).collect
-      println("Sanity check; the last two fields in the following should be ~1.0:")
-      sanity.foreach(row => println("  "+row))
+      // Center at the averages and rescale to +- 0.5.
+      // It's generally a good idea to scale "features" to be roughly the
+      // same order of magnitude and centered roughly around zero.
+      // It can also help prevent floating-point round-off errors for
+      // some data sets. However, in this case, the effect on the result is
+      // actually fairly negligible. (Try using the station data without scaling...)
+      val stationsScaled = stations.
+        select(($"latitude" - latAvg ) / latDelta, ($"longitude" - longAvg) / longDelta)
+
+      if (!quiet) {
+        val sanity = stationsScaled.toDF("latadj", "longadj").
+          agg(min("latadj"), max("latadj"),
+              min("longadj"), max("longadj"),
+              max("latadj") - min("latadj"),
+              max("longadj") - min("longadj")).collect
+        println("Sanity check; the last two fields in the following should be ~1.0:")
+        sanity.foreach(row => println("  "+row))
+      }
+
+      // K-Means wants vectors to train on:
+      val stationsScaledVectors = stationsScaled.
+        rdd.map(row => Vectors.dense(row.getDouble(0), row.getDouble(1)))
+
+      stationsScaledVectors.cache
+      stationsScaledVectors.count
+
+      // Save the scaled coordinates:
+      val locScaledPath = outputDir + pathSep + "stations-lat-long-scaled"
+      FileUtil.rmrf(locScaledPath)
+      saveRDDAsTextFile(stationsScaledVectors, locScaledPath, "Station vectors - scaled")((v:Vector, i:Int) => v(i))
+
+      // Now construct and train the K-Means model on the scaled data.
+      val model = new KMeans().
+        setInitializationMode(initMode).
+        setK(k).
+        setMaxIterations(numIterations).
+        run(stationsScaledVectors)
+
+      // The cost is a measure of the total distance of points from centroids.
+      if (!quiet) {
+        val cost = model.computeCost(stationsScaledVectors)
+        println(s"Total cost = $cost")
+      }
+
+      val centroidsScaled = model.clusterCenters.map(v => (v(0), v(1)))
+      val centroids = centroidsScaled.map{
+        case (lat, long) => (unscale(lat, latDelta, latAvg), unscale(long, longDelta, longAvg))
+      }
+      if (!quiet) {
+        println(s"Centroids: (very close to (41.90, -87.65))")
+        centroids.foreach(c => println("  "+c))
+      }
+
+      // Convert each back to an RDD with one partition to use saveAsTextFile:
+      val centroidsScaledRDD = sc.parallelize(centroidsScaled, numSlices = 1)
+      val centroidsRDD = sc.parallelize(centroids, numSlices = 1)
+
+      val centroidsScaledPath = outputDir + pathSep + s"centroids-$k-adj"
+      val centroidsPath = outputDir + pathSep + s"centroids-$k"
+      FileUtil.rmrf(centroidsScaledPath)
+      FileUtil.rmrf(centroidsPath)
+
+      saveRDDAsTextFile(centroidsScaledRDD, centroidsScaledPath, "Centroids - scaled")(tupGet)
+      saveRDDAsTextFile(centroidsRDD, centroidsPath, "Centroids")(tupGet)
+
+      val forPlottingOutFile = outputDir + pathSep + s"for-plotting-$k" + pathSep + "data.csv"
+      if (!quiet) println(s"Writing CSV file suitable for spreadsheets: $forPlottingOutFile")
+      csvForSpreadSheet(forPlottingOutFile, stationsRDD, centroids)
+
+      printGoogleMapsMessage(stationsFile, centroidsPath)
+    } finally {
+      sc.stop()
     }
-
-    // K-Means wants vectors to train on:
-    val stationsScaledVectors = stationsScaled.
-      rdd.map(row => Vectors.dense(row.getDouble(0), row.getDouble(1)))
-
-    stationsScaledVectors.cache
-    stationsScaledVectors.count
-
-    // Save the scaled coordinates:
-    val locScaledPath = outputDir + pathSep + "stations-lat-long-scaled"
-    FileUtil.rmrf(locScaledPath)
-    saveRDDAsTextFile(stationsScaledVectors, locScaledPath, "Station vectors - scaled")((v:Vector, i:Int) => v(i))
-
-    // Now construct and train the K-Means model on the scaled data.
-    val model = new KMeans().
-      setInitializationMode(initMode).
-      setK(k).
-      setMaxIterations(numIterations).
-      run(stationsScaledVectors)
-
-    // The cost is a measure of the total distance of points from centroids.
-    if (!quiet) {
-      val cost = model.computeCost(stationsScaledVectors)
-      println(s"Total cost = $cost")
-    }
-
-    val centroidsScaled = model.clusterCenters.map(v => (v(0), v(1)))
-    val centroids = centroidsScaled.map{
-      case (lat, long) => (unscale(lat, latDelta, latAvg), unscale(long, longDelta, longAvg))
-    }
-    if (!quiet) {
-      println(s"Centroids: (very close to (41.90, -87.65))")
-      centroids.foreach(c => println("  "+c))
-    }
-
-    // Convert each back to an RDD with one partition to use saveAsTextFile:
-    val centroidsScaledRDD = sc.parallelize(centroidsScaled, numSlices = 1)
-    val centroidsRDD = sc.parallelize(centroids, numSlices = 1)
-
-    val centroidsScaledPath = outputDir + pathSep + s"centroids-$k-adj"
-    val centroidsPath = outputDir + pathSep + s"centroids-$k"
-    FileUtil.rmrf(centroidsScaledPath)
-    FileUtil.rmrf(centroidsPath)
-
-    saveRDDAsTextFile(centroidsScaledRDD, centroidsScaledPath, "Centroids - scaled")(tupGet)
-    saveRDDAsTextFile(centroidsRDD, centroidsPath, "Centroids")(tupGet)
-
-    val forPlottingOutFile = outputDir + pathSep + s"for-plotting-$k" + pathSep + "data.csv"
-    if (!quiet) println(s"Writing CSV file suitable for spreadsheets: $forPlottingOutFile")
-    csvForSpreadSheet(forPlottingOutFile, stationsRDD, centroids)
-
-    printGoogleMapsMessage(stationsFile, centroidsPath)
   }
 
   /**

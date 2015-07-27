@@ -15,10 +15,11 @@ import java.io.File
  */
 trait DivvyCommon {
 
-  def defaultDivvyDir: String = "data/Divvy"
-  def defaultDivvyStationsFile: String = "output/Divvy/stations-lat-long/data.csv"
-  def defaultDivvyOutputDir: String = "output/Divvy"
   def pathSep: String = File.separator
+  def defaultDivvyDir: String = "data"+ pathSep + "Divvy"
+  def defaultDivvyOutputDir: String = "output"+ pathSep + "Divvy"
+  def defaultDivvyStationsFile: String =
+    defaultDivvyOutputDir+ pathSep + "stations-lat-long"+ pathSep + "data.csv"
 
   /**
    * Format each double for output to 5 decimal points.
