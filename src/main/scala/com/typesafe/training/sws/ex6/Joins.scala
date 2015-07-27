@@ -23,6 +23,7 @@ object Joins {
       CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
     val argz = options(args.toList)
+    val quiet = argz.getOrElse("quiet", "false").toBoolean
 
     val sc = new SparkContext(argz("master"), "Joins")
     try {
@@ -51,8 +52,10 @@ object Joins {
       // Join on the key, the first field in the tuples.
       val flights_airports = flights.join(airports)
 
-      println("flights_airports.toDebugString:")
-      println(flights_airports.toDebugString)
+      if (!quiet) {
+        println("flights_airports.toDebugString:")
+        println(flights_airports.toDebugString)
+      }
 
       if (flights.count != flights_airports.count) {
         println(s"flights count, ${flights.count}, doesn't match output count, ${flights_airports.count}")
@@ -69,8 +72,7 @@ object Joins {
 
       val now = Timestamp.now()
       val out = s"${argz("output-path")}-$now"
-      if (! argz.getOrElse("quiet", "false").toBoolean)
-        println(s"Writing output to: $out")
+      if (!quiet) println(s"Writing output to: $out")
 
       flights_airports2.saveAsTextFile(out)
     } finally {
