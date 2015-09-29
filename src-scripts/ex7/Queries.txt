@@ -4,7 +4,7 @@
 // of more than two tables. So, the following won't work:
 val tab1 = sql("""
   SELECT f.origin, a.airport, f.dest, b.airport, f.c2
-  FROM flights_between_airports2 f
+  FROM flights_between_airports f
   JOIN airports a ON f.origin = a.iata
   JOIN airports b ON f.dest = b.iata""")
 
@@ -13,7 +13,7 @@ val tab2 = sql("""
   SELECT fa.origin, fa.airport, fa.dest, b.airport, fa.c2
   FROM (
     SELECT f.origin, a.airport, f.dest, f.c2
-    FROM flights_between_airports2 f
+    FROM flights_between_airports f
     JOIN airports a ON f.origin = a.iata) fa
   JOIN airports b ON fa.dest = b.iata""")
 

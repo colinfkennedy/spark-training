@@ -1,8 +1,6 @@
 // Adapted from src/main/scala/com/typesafe/training/sws/ex7/SparkSQL.scala
 import com.typesafe.training.data._
 import com.typesafe.training.util.Printer
-import org.apache.spark.sql.{SQLContext, DataFrame}
-import org.apache.spark.rdd.RDD
 import com.typesafe.training.util.sql.SparkSQLRDDUtil
 
 val flightsPath  = "data/airline-flights/alaska-airlines/2008.csv"
@@ -17,6 +15,8 @@ sqlContext.setConf("spark.sql.shuffle.partitions", "4")
 // val sqlContext = new SQLContext(sc)
 
 import sqlContext.sql
+
+import org.apache.spark.sql.DataFrame
 
 def print(message: String, df: DataFrame) = {
   println(message)
@@ -36,6 +36,7 @@ airports.cache
 // using an implicit conversion. TypeTags are part of the reflection API and are
 // used to determine certain type information at runtime.
 import scala.reflect.runtime.universe.TypeTag
+import org.apache.spark.rdd.RDD
 def register[T <: Product : TypeTag](rdd: RDD[T], name: String): Unit = {
   val df = sqlContext.createDataFrame(rdd)
   df.registerTempTable(name)
@@ -77,11 +78,11 @@ println("\ncanceled_flights_by_month.explain(true):")
 canceled_flights_by_month.explain(true)
 
 val flights_between_airports = sql("""
-  SELECT origin, dest, COUNT(*)
+  SELECT origin, dest, COUNT(*) AS cnt
   FROM flights
   GROUP BY origin, dest
-  ORDER BY origin, dest""")
-print("Flights between airports, sorted by airports", flights_between_airports)
+  ORDER BY cnt DESC, origin, dest""")
+print("Flights between airports, sorted by counts then airports", flights_between_airports)
 println("\nflights_between_airports.explain(true):")
 flights_between_airports.explain(true)
 

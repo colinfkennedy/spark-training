@@ -32,7 +32,8 @@ object WordCountSortByWord {
         .map(word => (word, 1))
         .reduceByKey((n1, n2) => n1 + n2)
         // Pass true for ascending, false for descending.
-        .sortByKey(false)
+        // Note that you can name parameters explicitly when you call them:
+        .sortByKey(ascending = false)
 
       val now = Timestamp.now()
       val out = s"${argz("output-path")}-$now"

@@ -1,15 +1,15 @@
 import com.typesafe.training.data._
 import com.typesafe.training.util.Printer
 import com.typesafe.training.util.sql.SparkSQLRDDUtil
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
-import org.apache.spark.sql.{SQLContext, DataFrame}
-
 // Our settings for sbt console and spark-shell both define the following for us:
+// import org.apache.spark.SparkContext
+// import org.apache.spark.SparkContext._
+// import org.apache.spark.sql.SQLContext
 // val sqlContext = new SQLContext(sc)
 // import sqlContext.implicits._  // Needed for column idioms like $"foo".desc.
 
-// Change to a more reasonable default number of partitions (from 200)
+// Change to a more reasonable default number of partitions for our data
+// (from 200)
 sqlContext.setConf("spark.sql.shuffle.partitions", "4")
 
 val flightsPath  = "data/airline-flights/alaska-airlines/2008.csv"
@@ -89,27 +89,25 @@ canceled_flights_by_month.explain(true)
 canceled_flights.unpersist
 
 // Watch what happens with the next calculation.
-// Note how many partitions it generates and how long it takes to run.
-// SELECT origin, dest, COUNT(*)
+// Before running the next query, change the shuffle.partitions property to 50:
+sqlContext.setConf("spark.sql.shuffle.partitions", "50")
+
+// We used "50" instead of "4". Run the query. How much time does it take?
+//
+// SELECT origin, dest, COUNT(*) AS cnt
 //   FROM flights
 //   GROUP BY origin, dest
-//   ORDER BY origin, dest;
-val flights_between_airports1 = flights.
-  groupBy("origin", "dest").count().
-  orderBy("origin", "dest")
-Printer(Console.out, "Flights between airports, sorted by airports", flights_between_airports1)
+//   ORDER BY cnt DESC, origin, dest;
+val flights_between_airports50 = flights.select($"origin", $"dest").
+  groupBy($"origin", $"dest").count().
+  orderBy($"count".desc, $"origin", $"dest")
+Printer(Console.out, "Flights between airports, sorted by airports", flights_between_airports50)
 
-println("\nflights_between_airports1.explain(true):")
-flights_between_airports1.explain(true)
-
-// Now note what happens if we coalesce to 4 partitions after calling
-// `groupBy`, which expands the number of partitions. Specifically,
-// `groupBy` returns a `GroupedData` object, on which we call `count`,
-// which returns a new `DataFrame`. That's what we coalesce on so that
-// `orderBy` is much faster.
-val flights_between_airports = flights.
-  groupBy("origin", "dest").count().coalesce(4).
-  orderBy("origin", "dest")
+// Now change it back, run the query and compare the time. Does the output change?
+sqlContext.setConf("spark.sql.shuffle.partitions", "4")
+val flights_between_airports = flights.select($"origin", $"dest").
+  groupBy($"origin", $"dest").count().
+  orderBy($"count".desc, $"origin", $"dest")
 Printer(Console.out, "Flights between airports, sorted by airports", flights_between_airports)
 
 println("\nflights_between_airports.explain(true):")
@@ -117,13 +115,27 @@ flights_between_airports.explain(true)
 
 flights_between_airports.cache
 
-// The call to coalesce(4) seems redundant, but apparently isn't.
-// If you remove it, `orderBy` processes ~170 partitions.
+// Now note it's sometimes useful to coalesce to a smaller number of partitions
+// after calling an operation like `groupBy`, where the number of resulting
+// records may drop dramatically (but they records become correspondingly bigger!).
+// Specifically, `groupBy` returns a `GroupedData` object, on which we call
+// `count`, which returns a new `DataFrame`. That's what we coalesce on so that
+// `orderBy` can potentially be much faster. HOWEVER, because we set the default
+// number of partitions to 4 with the property above, in this particular case,
+// this doesn't make much difference.
+val flights_between_airports2 = flights.
+  groupBy($"origin", $"dest").count().coalesce(2).
+  sort($"count".desc, $"origin", $"dest")
+Printer(Console.out, "Flights between airports, sorted by airports", flights_between_airports2)
+
+println("\nflights_between_airports2.explain(true):")
+flights_between_airports2.explain(true)
+
 // SELECT origin, dest, COUNT(*)
 //   FROM flights_between_airports
 //   ORDER BY count DESC;
-val frequent_flights_between_airports = flights_between_airports.
-  coalesce(4).orderBy($"count".desc)
+val frequent_flights_between_airports =
+  flights_between_airports.orderBy($"count".desc)
 // Show all of them (~170)
 Printer(Console.out, "Flights between airports, sorted by counts descending", frequent_flights_between_airports, 200)
 

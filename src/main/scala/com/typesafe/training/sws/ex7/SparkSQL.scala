@@ -100,10 +100,10 @@ object SparkSQL {
       // for function outputs, which we would like to use for "COUNT(*) as count",
       // then "ORDER BY count". However, we can use the synthesized name, c2.
       val flights_between_airports2 = sqlContext.sql("""
-        SELECT origin, dest, COUNT(*)
+        SELECT origin, dest, COUNT(*) AS cnt
         FROM flights
         GROUP BY origin, dest
-        ORDER BY c2 DESC""")
+        ORDER BY cnt DESC""")
       // There are ~170, so print them all, but it uses ~200 partitions!
       // This inefficiency can't be fixed when using SQL, but can be fixed
       // when using the DataFrames DSL; see SparkDataFrame.scala.

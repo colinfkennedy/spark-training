@@ -47,6 +47,8 @@ object InvertedIndexSortByWordsAndCountsWithStopWordsFiltering {
       if (! argz.getOrElse("quiet", "false").toBoolean)
         println(s"Writing output to: $out")
 
+      // New: See filtering below.
+      val numbersRE = """^\d+$""".r
       // Split on non-alphanumeric sequences of character as before.
       // Rather than map to "(word, 1)" tuples, we treat the words by values
       // and count the unique occurrences.
@@ -59,9 +61,12 @@ object InvertedIndexSortByWordsAndCountsWithStopWordsFiltering {
             // Use a refined regex to retain abbreviations, e.g., "there's".
             text.trim.split("""[^\w']""") map (word => ((word, path), 1))
         }
-        // New: Filter stop words.
+        // New: Filter stop words. Also remove pure numbers.
+        // Note that the regular expression match is fairly
+        // expensive, so maybe it's not worth doing here!
         .filter {
-          case ((word, _), _) => stopWords.value.contains(word) == false
+          case ((word, _), _) =>
+            stopWords.value.contains(word) == false && numbersRE.findFirstIn(word) == None
         }
         .reduceByKey {
           case (count1, count2) => count1 + count2
@@ -72,16 +77,24 @@ object InvertedIndexSortByWordsAndCountsWithStopWordsFiltering {
         .groupByKey  // The words are the keys
         // New: sort by Key (word).
         .sortByKey(ascending = true)
-        .map {
-          case (word, iterable) =>
+        .mapValues { iterable =>
             // New: sort the sequence by count, descending. Note that we also
             // sort by path. This is NOT necessary, but it removes randomness
             // when two "n" values are equal! It adds overhead, though.
             val seq2 = iterable.toVector.sortBy {
               case (path, n) => (-n, path)
             }
-            (word, seq2.mkString(", "))
+            seq2.mkString(", ")
         }
+        // This also works, but is slightly more expensive when you don't
+        // change the key:
+        // .map {
+        //   case (word, iterable) =>
+        //     val seq2 = iterable.toVector.sortBy {
+        //       case (path, n) => (-n, path)
+        //     }
+        //     (word, seq2.mkString(", "))
+        // }
         .saveAsTextFile(out)
     } finally {
       sc.stop()

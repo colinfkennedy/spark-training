@@ -47,7 +47,7 @@ object WordCount {
       // the occurrences of each word.
       val wc = input
         .flatMap(text => text.split("""\W+"""))  // or .flatMap(_.split("""\W+"""))
-        .map(word => (word, 1))
+        .map(word => (word, 1))  // RDD[(String,Int)]
         .reduceByKey((n1, n2) => n1 + n2)   // or .reduceByKey(_ + _)
 
       // Save, but it actually writes Hadoop-style output; to a directory,
@@ -60,6 +60,7 @@ object WordCount {
       println(s"Writing output to: $outpath")
       wc.saveAsTextFile(outpath)
     } finally {
+      // System.in.read()
       sc.stop()
     }
   }

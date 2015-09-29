@@ -5,8 +5,11 @@ package com.typesafe.training.util
  * From http://norm.al/2009/04/14/list-of-english-stop-words/
  */
 object StopWords {
+  // Note that we filter for "", "'", and "_", which 'leak' through our simple
+  // inverted index tokenization.
   // Why is a Set used here?
   val words = Set(
+    "", "'", "_",
     "a’s", "able", "about", "above", "according", "accordingly", "across",
     "actually", "after", "afterwards", "again", "against", "ain’t", "all",
     "allow", "allows", "almost", "alone", "along", "already", "also",

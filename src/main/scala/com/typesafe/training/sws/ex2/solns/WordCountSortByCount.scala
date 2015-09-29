@@ -32,14 +32,18 @@ object WordCountSortByCount {
         .flatMap(line => line.split("""\W+"""))
         .map(word => (word, 1))
         .reduceByKey((n1, n2) => n1 + n2)
-        .keyBy(tuple => tuple._2)  // Create a new RDD with the count as the key!
-        // Add this line to sort: pass true for ascending, false for descending.
-        .sortByKey(false)
+        // Sort by the 2nd tuple element, ascending or descending
+        .sortBy(tuple => tuple._2, ascending = true)
+
+        // You could also sort as follows:
+        // .keyBy(tuple => tuple._2)  // Create a new RDD with the count as the key!
+        // Now sort by the key, which is the 2nd tuple element.
+        // .sortByKey(ascending = false)
         // At this point, the "schema" is (count, (word, count))
         // Let's convert it back to (word, count). You could do this:
         // .map { case (_ (word, count)) => (word, count) }
         // While pretty, the following is probably more efficient:
-        .map(record => record._2)
+        // .map(record => record._2)
 
       val now = Timestamp.now()
       val out = s"${argz("output-path")}-$now"

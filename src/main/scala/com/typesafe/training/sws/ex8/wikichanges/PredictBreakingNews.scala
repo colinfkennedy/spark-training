@@ -14,13 +14,14 @@ object PredictBreakingNews {
     val sc = new SparkContext("local[3]", "Intro")
 
     def createContext(): StreamingContext = {
-      val ssc = new StreamingContext(sc, Seconds(1))
+      val ssc = new StreamingContext(sc, Seconds(5))
       ssc.checkpoint(checkpointDirectory)
       val wikiChanges = ssc.socketTextStream("localhost", 8124)
       val urlAndCount: DStream[(String, Int)] = wikiChanges
         .flatMap(_.split("\n"))
         .map(Json.parse(_))
         .map(j => (j \ "pageUrl").as[String] -> 1)
+        .reduceByKey(_ + _)
 
       urlAndCount.print(20)
       ssc

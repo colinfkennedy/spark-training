@@ -22,9 +22,7 @@ println(s"\nWriting as JSON to $output")
 carriersJSON.write.json(output)
 
 // Also load a raw strings
-val carriersJSONStrings = for {
-  line <- sc.textFile(carriersJSONPath)
-} yield line
+val carriersJSONStrings = sc.textFile(carriersJSONPath)
 
 // Infer the schema using the raw strings:
 val carriersJSON2 = sqlContext.read.json(carriersJSONStrings)
@@ -46,7 +44,7 @@ Printer(Console.out, "Carriers converted to an RDD of JSON strings: ", carriersR
 println("\nCarriers whose 'code' starts with 'U':")
 carriersRDD.filter(str => str.contains("""code":"U""")) foreach println
 
-println("\nError handling. Note how the following bad records are handled.")
+println("\nError handling. Note how the following two malformed records are handled.")
 val jsonsRDD1 = sc.parallelize(Seq(
   """{ "id": 1, "message": "This is a good record" }""",
   """{ "id", "message": "This is not a good record" }""",
@@ -62,7 +60,7 @@ good foreach println
 println(s"${bad.count} bad records:")
 bad foreach println
 
-println("\nWhat happens if you have missing key-value pairs? You get the superset schema.")
+println("\nWhat happens if you have valid records, but differnet key-value pairs? You get the superset schema.")
 val jsonsRDD2 = sc.parallelize(Seq(
   """{ "id": 1, "message": "message1", "name": "name1" }""",
   """{ "id": 2, "message": "message2"                  }""",

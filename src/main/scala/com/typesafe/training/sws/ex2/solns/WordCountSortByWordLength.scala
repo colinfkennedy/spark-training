@@ -32,19 +32,13 @@ object WordCountSortByWordLength {
         .reduceByKey((n1, n2) => n1 + n2)
         // Construct new records that add the word length.
         // Use the length as the "key" for sorting.
-        .map{ case (word, count) => (word, word.length, count) }
-        .keyBy(tuple => tuple._2)
+        .map{ case (word, count) => (word.length, word, count) }
         // Alternative to two previous lines: if you don't care about
         // the actual length, don't add it to the tuple. Instead, just
-        // use "keyBy" on the word length:
+        // use "keyBy" or "sortBy" on the word length:
         // .keyBy(tuple => tuple._1.length)
-        // Pass true for ascending, false for descending.
-        .sortByKey(false)
-        // At this point, the "schema" is (length, (word, length, count))
-        // Let's convert it back to (word, count). You could do this:
-        // .map { case (length, (word, length, count)) => (word, length, count) }
-        // While pretty, the following is probably more efficient:
-        .map(record => record._2)
+        // Return negative length for descending sort.
+        .sortBy{ case (length, _, _) => -length }
 
       val now = Timestamp.now()
       val out = s"${argz("output-path")}-$now"
