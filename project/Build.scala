@@ -4,7 +4,7 @@ import sbt.Keys._
 object BuildSettings {
 
   val Name = "spark-workshop-exercises"
-  val Version = "3.0"
+  val Version = "3.2"
   val ScalaVersion = "2.11.7"
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++ Seq (
@@ -29,7 +29,7 @@ object Resolvers {
 
 object Dependency {
   object Version {
-    val Spark        = "1.4.1"
+    val Spark        = "1.5.1"
     val ScalaTest    = "2.2.4"
     val ScalaCheck   = "1.12.2"
   }

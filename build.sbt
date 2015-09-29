@@ -20,8 +20,6 @@ addCommandAlias("ex2a",                       "runMain com.typesafe.training.sws
 
 addCommandAlias("ex2",                        "runMain com.typesafe.training.sws.ex2.WordCount")
 
-addCommandAlias("ex3",                        "runMain com.typesafe.training.sws.ex3.MatrixAddition")
-
 addCommandAlias("ex4-crawl",                  "runMain com.typesafe.training.sws.ex4.Crawl")
 
 addCommandAlias("ex4-ii",                     "runMain com.typesafe.training.sws.ex4.InvertedIndex")
