@@ -16,7 +16,7 @@ cleanupCommands += """
   sc.stop()
   """
 
-addCommandAlias("ex2a",                       "runMain com.typesafe.training.sws.ex2.WordCountA")
+addCommandAlias("ex2b",                       "runMain com.typesafe.training.sws.ex2.WordCountB")
 
 addCommandAlias("ex2",                        "runMain com.typesafe.training.sws.ex2.WordCount")
 
