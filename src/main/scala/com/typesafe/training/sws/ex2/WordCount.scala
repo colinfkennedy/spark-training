@@ -5,7 +5,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 
 /**
- * Second implementation of Word Count that makes the following changes:
+ * Final implementation of Word Count that makes the following changes:
  * <ol>
  * <li>A simpler approach is used for the algorithm.</li>
  * <li>A CommandLineOptions library is used.</li>

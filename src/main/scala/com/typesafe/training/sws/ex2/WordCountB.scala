@@ -8,19 +8,19 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 
 /**
- * First implementation of Word Count.
+ * Second implementation of Word Count.
  * Scala makes the Singleton Design Pattern "first class". The "object" keyword
  * declares an class with a single instance that the runtime will create itself.
  * You put definitions in objects that would be declared static in Java, like
  * "main".
  */
-object WordCountA {
+object WordCountB {
   def main(args: Array[String]): Unit = {
 
     // The first argument specifies the "master" (see the tutorial notes).
     // The second argument is a name for the job. Additional arguments
     // are optional.
-    val sc = new SparkContext("local", "Word Count (A)")
+    val sc = new SparkContext("local", "Word Count (B)")
 
     // Put the "stop" inside a finally clause, so it's invoked even when
     // something fails that forces an abnormal termination.
