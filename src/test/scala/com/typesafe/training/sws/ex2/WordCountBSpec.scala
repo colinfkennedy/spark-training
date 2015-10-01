@@ -11,7 +11,7 @@ class WordCountBSpec extends FunSpec {
       val golden = "golden/shakespeare-wcB/data.txt"
       TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
 
-      WordCountA.main(Array.empty[String])
+      WordCountB.main(Array.empty[String])
 
       TestUtil.verifyAndClean(out, golden, out)
     }

@@ -44,7 +44,7 @@ object WordCountB {
       // not a directory as before, the format of each line will be different,
       // and the order of the output will not be the same, either.
       val now = Timestamp.now()
-      val outpath = s"output/shakespeare-wcA-$now"
+      val outpath = s"output/shakespeare-wcB-$now"
       println(s"Writing ${wc.size} records to $outpath")
 
       val out = new java.io.PrintWriter(outpath)
