@@ -78,8 +78,7 @@ object SparkWorkshopBuild extends Build {
       libraryDependencies ++= Dependencies.sparkWorkshop,
       unmanagedResourceDirectories in Compile += baseDirectory.value / "conf",
       mainClass := Some("run"),
-      // Must run the examples and tests in separate JVMs to avoid mysterious
-      // scala.reflect.internal.MissingRequirementError errors. (TODO)
+      // Works better to run the examples and tests in separate JVMs.
       fork := true,
       //This is important for some programs to read input from stdin
       connectInput in run := true,
