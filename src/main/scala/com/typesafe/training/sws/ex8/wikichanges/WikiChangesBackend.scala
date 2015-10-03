@@ -57,7 +57,7 @@ object WikiChangesBackend {
       }
     })
 
-    scala.io.StdIn.readLine()
+    Console.in.readLine()
     socket.disconnect()
   }
 }

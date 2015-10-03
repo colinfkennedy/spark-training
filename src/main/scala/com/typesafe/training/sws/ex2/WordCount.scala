@@ -60,7 +60,7 @@ object WordCount {
       println(s"Writing output to: $outpath")
       wc.saveAsTextFile(outpath)
     } finally {
-      // System.in.read()
+      // Console.in.read()
       sc.stop()
     }
   }

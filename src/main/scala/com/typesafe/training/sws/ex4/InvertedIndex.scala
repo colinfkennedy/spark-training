@@ -14,7 +14,8 @@ object InvertedIndex {
       CommandLineOptions.outputPath(Some("output/inverted-index")),
       CommandLineOptions.master(Some(CommandLineOptions.defaultMaster)),
       CommandLineOptions.quiet)
-    val argz = options(args.toList)
+    val argz  = options(args.toList)
+    val quiet = argz.getOrElse("quiet", "false").toBoolean
 
     val sc = new SparkContext(argz("master"), "Inverted Index")
 
@@ -37,7 +38,7 @@ object InvertedIndex {
 
       val now = Timestamp.now()
       val out = s"${argz("output-path")}-$now"
-      if (! argz.getOrElse("quiet", "false").toBoolean)
+      if (! quiet)
         println(s"Writing output to: $out")
 
       // Split on non-alphanumeric sequences of character as before.
@@ -64,6 +65,20 @@ object InvertedIndex {
         }
         .saveAsTextFile(out)
     } finally {
+      if (! quiet) {
+        println("""
+          |========================================================================
+          |
+          |    Before closing down the SparkContext, open the Spark Web Console
+          |    http://localhost:4040 and browse the information about the tasks
+          |    run for this example.
+          |
+          |    When finished, hit the <return> key to exit.
+          |
+          |========================================================================
+          """.stripMargin)
+        Console.in.read()
+      }
       sc.stop()
     }
   }
