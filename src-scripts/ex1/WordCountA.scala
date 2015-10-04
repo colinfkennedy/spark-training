@@ -31,7 +31,8 @@ val lines = input.map(line => line.toLowerCase)
 val wordCount = lines.
   flatMap(line => line.split("""\W+""")).
   groupBy(word => word).
-  mapValues(seq => seq.size)
+  mapValues(seq => seq.size).
+  cache()
 
 println(s"There are ${wordCount.count} unique words")
 
