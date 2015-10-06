@@ -37,6 +37,8 @@ addCommandAlias("ex6-shuffle",                "runMain com.typesafe.training.sws
 
 addCommandAlias("ex7-df",                     "runMain com.typesafe.training.sws.ex7.SparkDataFrames")
 
+addCommandAlias("ex7-df-rows",                "runMain com.typesafe.training.sws.ex7.SparkDataFramesRows")
+
 addCommandAlias("ex7-sql",                    "runMain com.typesafe.training.sws.ex7.SparkSQL")
 
 addCommandAlias("ex7-parquet",                "runMain com.typesafe.training.sws.ex7.SparkSQLParquet")
