@@ -3,10 +3,15 @@ shellPrompt := { state =>
 }
 
 initialCommands += """
-  import org.apache.spark.SparkContext
+  import org.apache.spark.{SparkContext, SparkConf}
   import org.apache.spark.SparkContext._
   import org.apache.spark.sql.SQLContext
-  val sc = new SparkContext("local[*]", "Spark Console")
+  val sparkConf = new SparkConf()
+  sparkConf.setMaster("local[*]")
+  sparkConf.setAppName("Spark Console")
+  // Silence annoying warning from the Metrics system:
+  sparkConf.set("spark.app.id", "Spark Console")
+  val sc = new SparkContext(sparkConf)
   val sqlContext = new SQLContext(sc)
   import sqlContext.implicits._
   """
