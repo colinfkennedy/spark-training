@@ -29,7 +29,7 @@ output/streaming*
 output/voldat*
 output/*parquet
 output/*json
-output/*checkpoint
+output/*checkpoint*
 output/Divvy
 output/DivvyZip
 project/.sbtserver
@@ -42,3 +42,4 @@ data/Divvy
 tmp/**
 node_modules/
 .sass-cache
+metastore_db
