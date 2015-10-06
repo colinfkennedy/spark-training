@@ -5,7 +5,13 @@ object BuildSettings {
 
   val Name = "spark-workshop-exercises"
   val Version = "3.2"
+  // Works just as well with both Scala 2.10.X and 2.11.X.
+  // To switch versions at the sbt prompt use:
+  //   ++ 2.10.5
+  // or
+  //   ++ 2.11.7
   val ScalaVersion = "2.11.7"
+  val ScalaVersions = Seq("2.11.7", "2.10.5")
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++ Seq (
     name          := Name,
