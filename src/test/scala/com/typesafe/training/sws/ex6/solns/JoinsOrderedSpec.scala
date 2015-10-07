@@ -11,7 +11,7 @@ class JoinsOrderedSpec extends FunSpec {
       val out     = "output/airlines-flights-airports-join-ordered"
       val out2    = out+"-"
       val golden  = "golden/airlines-flights-airports-join-ordered/part-00000"
-      TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
+      TestUtil.testAndRemove(out2)  // Delete previous runs, if necessary.
 
       JoinsOrdered.main(Array(
         "--master", "local", "--quiet",

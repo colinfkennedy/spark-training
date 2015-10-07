@@ -10,7 +10,7 @@ class KJVJoinsOrderedSpec extends FunSpec {
       val out     = "output/kjv-joins-ordered"
       val out2    = out+"-"
       val golden  = "golden/kjv-joins-ordered/part-00000"
-      TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
+      TestUtil.testAndRemove(out2)  // Delete previous runs, if necessary.
 
       KJVJoinsOrdered.main(Array(
         "--master", "local", "--quiet",

@@ -30,19 +30,25 @@ class DivvyKMeansSpec extends FunSpec with DivvyCommon {
 
   val seed = -361.0
 
-  protected def findExtrema(file: String): (Int, Double, Double, Double, Double) =
-    Source.fromFile(file).getLines.foldLeft((0, seed, -seed, seed, -seed)) {
-      case ((lineNum, latMin, latMax, longMin, longMax), line) =>
-        line.split(",") match {
-          case Array(latStr, longStr) =>
-            val (lat, long) = (latStr.toDouble, longStr.toDouble)
-            val newLatMin  = if (latMin  > lat)  lat  else latMin
-            val newLatMax  = if (latMax  < lat)  lat  else latMax
-            val newLongMin = if (longMin > long) long else longMin
-            val newLongMax = if (longMax < long) long else longMax
-            (lineNum+1, newLatMin, newLatMax, newLongMin, newLongMax)
-          case _ =>
-            fail(s"Bad input line from $file: $line")
-        }
+  protected def findExtrema(file: String): (Int, Double, Double, Double, Double) = {
+    val source = Source.fromFile(file)
+    try {
+      source.getLines().foldLeft((0, seed, -seed, seed, -seed)) {
+        case ((lineNum, latMin, latMax, longMin, longMax), line) =>
+          line.split(",") match {
+            case Array(latStr, longStr) =>
+              val (lat, long) = (latStr.toDouble, longStr.toDouble)
+              val newLatMin = if (latMin > lat) lat else latMin
+              val newLatMax = if (latMax < lat) lat else latMax
+              val newLongMin = if (longMin > long) long else longMin
+              val newLongMax = if (longMax < long) long else longMax
+              (lineNum + 1, newLatMin, newLatMax, newLongMin, newLongMax)
+            case _ =>
+              fail(s"Bad input line from $file: $line")
+          }
+      }
+    } finally {
+      source.close()
     }
+  }
 }
