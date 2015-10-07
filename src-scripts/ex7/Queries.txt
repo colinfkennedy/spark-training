@@ -1,14 +1,14 @@
 // Example queries to run after loading src-scripts/ex7/SparkSQL.scala
 
-// Unfortunately, SparkSQL's SQL dialect doesn't support joins
-// of more than two tables. So, the following won't work:
+//joining multiple tables
+//c2 is a synthesized name of the count(*) column
 val tab1 = sql("""
   SELECT f.origin, a.airport, f.dest, b.airport, f.c2
   FROM flights_between_airports f
   JOIN airports a ON f.origin = a.iata
   JOIN airports b ON f.dest = b.iata""")
 
-// However, a nested query to do the first join will work:
+// Nested joining
 val tab2 = sql("""
   SELECT fa.origin, fa.airport, fa.dest, b.airport, fa.c2
   FROM (

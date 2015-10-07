@@ -7,7 +7,7 @@ class InvertedIndexSolnsSpec extends FunSpec {
 
   def setup(name: String) = {
     Timestamp.isTest = true
-    TestUtil.testAndRemove(s"output/$name")  // Delete previous runs, if necessary.
+    TestUtil.testAndRemove(s"output/$name-")  // Delete previous runs, if necessary.
     // We have to run Crawl first to ensure the data exists!
     // Use a single core (local).
     TestUtil.testAndRemove("output/crawl")  // Delete previous runs, if necessary.

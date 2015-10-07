@@ -72,6 +72,8 @@ object SparkWorkshopBuild extends Build {
     id = "spark-workshop-exercises",
     base = file("."),
     settings = buildSettings ++ Seq(
+      cleanFiles += file("output"),
+      cleanKeepFiles += file("output") / "README.markdown",
       maxErrors := 5,
       // Suppress warnings about Scala patch differences in dependencies.
       // This is slightly risky, so consider not doing this for production
@@ -91,8 +93,6 @@ object SparkWorkshopBuild extends Build {
       // Must run Spark tests sequentially because they compete for port 4040!
       // TODO. There is now a Spark property to disable the web console. If we
       // use it, then we can remove the following setting:
-      parallelExecution in Test := false))
+      parallelExecution in Test := false,
+      testOptions in Test += Tests.Argument("-oF")))
 }
-
-
-

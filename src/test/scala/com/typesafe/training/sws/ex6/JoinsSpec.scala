@@ -11,7 +11,7 @@ class JoinsSpec extends FunSpec {
       val out     = "output/airlines-flights-airports-join"
       val out2    = out+"-"
       val golden  = "golden/airlines-flights-airports-join/part-00000"
-      TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
+      TestUtil.testAndRemove(out2)  // Delete previous runs, if necessary.
 
       Joins.main(Array(
         "--master", "local", "--quiet",

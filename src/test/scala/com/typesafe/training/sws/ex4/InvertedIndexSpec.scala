@@ -10,7 +10,7 @@ class InvertedIndexSpec extends FunSpec {
       val out    = "output/inverted-index"
       val out2   = s"$out-/part-00000"
       val golden = "golden/inverted-index/part-00000"
-      TestUtil.testAndRemove(out)  // Delete previous runs, if necessary.
+      TestUtil.testAndRemove(out + "-")  // Delete previous runs, if necessary.
 
       // We have to run Crawl first to ensure the data exists!
       // Note that we use a single core (local).

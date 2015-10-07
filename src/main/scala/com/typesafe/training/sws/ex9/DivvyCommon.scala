@@ -22,10 +22,10 @@ trait DivvyCommon {
     defaultDivvyOutputDir+ pathSep + "stations-lat-long"+ pathSep + "data.csv"
 
   /**
-   * Format each double for output to 5 decimal points.
+   * Format each double for output to 5 decimal points using US Locale
    */
   protected def formatDoubles(ds: Double*): String =
-    ds.toSeq.map(d => f"$d%.5f").mkString(",")
+    ds.toSeq.map(d => "%.5f".formatLocal(java.util.Locale.US, d)).mkString(",")
 
   /**
    * Shift a scaled coordinate back to the original.
