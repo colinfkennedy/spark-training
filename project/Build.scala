@@ -11,7 +11,7 @@ object BuildSettings {
   // or
   //   ++ 2.11.7
   val ScalaVersion = "2.11.7"
-  val ScalaVersions = Seq("2.11.7", "2.10.5")
+  val ScalaVersions = Seq("2.11.7", "2.10.4")
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++ Seq (
     name          := Name,
