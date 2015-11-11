@@ -17,7 +17,6 @@ object PredictBreakingNewsWithTopEdits {
       val ssc = new StreamingContext(sc, Seconds(1))
       ssc.checkpoint(checkpointDirectory)
       val wikiChanges = ssc.socketTextStream("localhost", 8124)
-
       val urlAndCount: DStream[(String, Int)] = wikiChanges
         .flatMap(_.split("\n"))
         .map(Json.parse(_))

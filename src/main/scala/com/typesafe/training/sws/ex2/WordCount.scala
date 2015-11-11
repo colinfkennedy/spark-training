@@ -47,8 +47,17 @@ object WordCount {
       // the occurrences of each word.
       val wc = input
         .flatMap(text => text.split("""\W+"""))  // or .flatMap(_.split("""\W+"""))
-        .map(word => (word, 1))  // RDD[(String,Int)]
-        .reduceByKey((n1, n2) => n1 + n2)   // or .reduceByKey(_ + _)
+        .map(word => (word, 1))  // RDD[(String,Int,Int)]
+//        .map(word => (word.charAt(0), 1))  // RDD[(String,Int)]
+//        .reduce((tuple1, tuple2) => (tuple1, tuple1._2 + tuple2._2, tuple1.length))
+        .reduceByKey((n1, n2) => n1 + n2)// or .reduceByKey(_ + _)
+//        .keyBy({case (char, value) => value})
+        .keyBy({case (word, value) => value})
+        .groupByKey
+        .sortByKey(true)
+        .map { case (count, iter) =>
+          (count, iter.toVector.map(tup => tup._1).sortBy(word => word))
+        }
 
       // Save, but it actually writes Hadoop-style output; to a directory,
       // with a _SUCCESS marker (empty) file, the data as a "part" file,

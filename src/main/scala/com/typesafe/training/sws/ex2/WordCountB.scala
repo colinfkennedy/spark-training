@@ -37,7 +37,8 @@ object WordCountB {
       val wc = input
         .map(line => line.toLowerCase)
         .flatMap(line => line.split("""\W+"""))
-        .countByValue()  // Returns a Map[T, Long]
+        .map(word => (word, 1))
+        .reduceByKey((n1,n2) => n1+n2)
 
       // Save to a file, but because we no longer have an RDD, we have to use
       // good 'ol Java File IO. Note that the output specifier is now a file,
@@ -45,10 +46,11 @@ object WordCountB {
       // and the order of the output will not be the same, either.
       val now = Timestamp.now()
       val outpath = s"output/shakespeare-wcB-$now"
-      println(s"Writing ${wc.size} records to $outpath")
+      println(s"Writing ${wc.count} records to $outpath")
 
       val out = new java.io.PrintWriter(outpath)
-      wc foreach {
+      wc.collect().foreach {
+//        tuple => out.println("%20s\t%d".format(tuple._1, tuple._2))
         case (word, count) => out.println("%20s\t%d".format(word, count))
       }
       // WARNING: Without this close statement, it appears the output stream is

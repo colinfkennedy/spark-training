@@ -3,6 +3,8 @@ package com.typesafe.training.sws.ex4
 import com.typesafe.training.util.{Timestamp, CommandLineOptions}
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
+import com.typesafe.training.util.StopWords
+import org.apache.spark.broadcast.Broadcast
 
 /** Inverted Index - Basis of Search Engines */
 object InvertedIndex {
@@ -18,6 +20,7 @@ object InvertedIndex {
     val quiet = argz.getOrElse("quiet", "false").toBoolean
 
     val sc = new SparkContext(argz("master"), "Inverted Index")
+    val stopWords: Broadcast[Set[String]] = sc.broadcast(StopWords.words)
 
     try {
       // Load the input "crawl" data, where each line has the format:
@@ -29,7 +32,8 @@ object InvertedIndex {
       // data files, part-NNNNN.
       val lineRE = """^\s*\(([^,]+),(.*)\)\s*$""".r
       val input = sc.textFile(argz("input-path")) map {
-        case lineRE(name, text) => (name.trim, text.toLowerCase)
+        case lineRE(name, text) =>
+          (name.trim, text.toLowerCase)
         case badLine =>
           Console.err.println(s"Unexpected line: $badLine")
           // If any of these were returned, you could filter them out below.
@@ -45,6 +49,7 @@ object InvertedIndex {
       // Rather than map to "(word, 1)" tuples, we treat the words by values
       // and count the unique occurrences.
       input
+        .filter({case (word, path) => !stopWords.value.contains(word)})
         .flatMap {
           case (path, text) =>
             // If we don't trim leading whitespace, the regex split creates
@@ -60,8 +65,13 @@ object InvertedIndex {
           case ((word, path), n) => (word, (path, n))
         }
         .groupByKey  // The words are the keys
+        .sortByKey(true)
         .map {
-          case (word, iterable) => (word, iterable.mkString(", "))
+          case (word, iterable) =>
+            val seq2 = iterable.toVector.sortBy({
+              case (path, n) => (-n, path)
+            })
+            (word, seq2.mkString(", "))
         }
         .saveAsTextFile(out)
     } finally {

@@ -1,6 +1,6 @@
 package com.typesafe.training.sws.ex7
 
-import com.typesafe.training.util.{CommandLineOptions, Printer}
+import com.typesafe.training.util.{Printer, CommandLineOptions}
 import com.typesafe.training.util.CommandLineOptions.Opt
 import com.typesafe.training.util.sql.SparkSQLRDDUtil
 import com.typesafe.training.sws.ExtraCommandLineOptions
@@ -96,6 +96,8 @@ object SparkSQL {
         flights_between_airports.explain(true)
       }
 
+      flights_between_airports.registerTempTable("flights_between_airports")
+
       // Unfortunately, SparkSQL's SQL dialect doesn't yet support column aliasing
       // for function outputs, which we would like to use for "COUNT(*) as count",
       // then "ORDER BY count". However, we can use the synthesized name, c2.
@@ -112,6 +114,33 @@ object SparkSQL {
         println("\nflights_between_airports2.explain(true):")
         flights_between_airports2.explain(true)
       }
+
+      val flights_airports_joined_origin_dest = sqlContext.sql("""
+        SELECT f.origin, a.airport, f.dest, b.airport, f._c2
+        FROM flights_between_airports f
+        JOIN airports a ON f.origin = a.iata
+        JOIN airports b ON f.dest = b.iata""")
+
+      Printer(out, "Flights airports, joined origin and dest", flights_airports_joined_origin_dest, 1000)
+
+      val inner_join_flights = sqlContext.sql("""
+        SELECT fa.origin, fa.airport, fa.dest, b.airport, fa._c2
+        FROM (
+          SELECT f.origin, a.airport, f.dest, f._c2
+          FROM flights_between_airports f
+          JOIN airports a ON f.origin = a.iata) fa
+        JOIN airports b ON fa.dest = b.iata""")
+
+      Printer(out, "Inner join flights", inner_join_flights, 1000)
+
+      val join_flights_planes = sqlContext.sql("""
+        SELECT *
+        FROM flights f
+        JOIN planes p ON f.tailNum = p.tailNum
+        LIMIT 100""")
+
+      Printer(out, "Join Flights Planes", join_flights_planes, 1000)
+
     } finally {
       sc.stop()
     }

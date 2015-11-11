@@ -185,6 +185,15 @@ object SparkDataFrames {
         out.println("\nfrequent_flights_between_airports.explain(true):")
         frequent_flights_between_airports.explain(true)
       }
+
+      val flights_between_airports3 =  flights_between_airports
+        .join(airports, $"origin" === $"iata")
+        .select("origin", "airport", "dest", "count")
+        .toDF("origin", "origin_airport", "dest", "count")
+        .join(airports, $"dest" === $"iata")
+        .select($"origin", $"origin_airport", $"dest", $"airport", $"count")
+      Printer(out, "Flights between airports, joined airports origin and dest", flights_between_airports3)
+
     } finally {
       sc.stop()
     }
